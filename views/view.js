@@ -1,4 +1,3 @@
-(function () {
 
     window.app = window.app || {}
     window.app.View = View
@@ -11,7 +10,9 @@
     View.prototype.render = function (page, args) {
         if (page === 'Home') {
             document.querySelector('content').innerHTML = this.templates.Home(args.boards)
-        } else if (page === 'Board') {
+        } else if (page === 'Login')  {
+            document.querySelector('content').innerHTML = this.templates.Login()
+        }else if (page === 'Board') {
             let scrolled = document.querySelector('main') && document.querySelector('main').scrollLeft
             document.querySelector('content').innerHTML = this.templates.Board(args.board)
             document.querySelector('main').scrollLeft = scrolled || 0
@@ -19,7 +20,10 @@
     }
 
     View.prototype.addEvent = function (elementID, event, func) {
-        document.getElementById(elementID).addEventListener(event, func)
+        var el = document.getElementById(elementID);
+        if(el){
+            el.addEventListener(event, func);
+        }
     }
 
     View.prototype.getElement = function (selector){
@@ -83,4 +87,3 @@
         return `linear-gradient(160deg, ${colors[rand].light}, ${colors[rand].dark})`
     }
     
-})()

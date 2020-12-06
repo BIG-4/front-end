@@ -1,4 +1,3 @@
-(function () {
 
     window.app = window.app || {}
     window.app.Controller = Controller
@@ -6,7 +5,7 @@
     function Controller(model, view) {
         this.model = model
         this.view = view
-        this.refresh('Home')
+        this.refresh('Login')
         this.view.setBackground()
     }
 
@@ -14,11 +13,44 @@
         if (page === 'Home') {
             this.view.render(page, {boards: this.model.getBoards()})
             this.setHomeEvents()
+        } else if (page === 'Login') {
+            this.view.render(page, {})
+            this.setLoginEvents()
         } else if (page === 'Board') {
             this.currentBoard = args.boardID
             this.view.render(page, {board: this.model.getBoard(this.currentBoard)})
             this.setBoardEvents()
         }
+    }
+
+    Controller.prototype.setLoginEvents = function () {
+        const container = document.getElementById('container');
+        this.view.addEvent('signUpBtn', 'click', () => {
+            container.classList.add("right-panel-active");
+        });
+        this.view.addEvent('signInBtn', 'click', () => {
+            container.classList.remove("right-panel-active");
+        });
+        this.view.addEvent('signIn', 'click', () => this.signIn());
+        this.view.addEvent('signUp', 'click', () => this.signUp());
+    }
+
+    Controller.prototype.signIn = function() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "ajaxfile.php", true); 
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        xhttp.onreadystatechange = function() {
+           if (this.readyState == 4 && this.status == 200) {
+             // Response
+             var response = this.responseText;
+           }
+        };
+        var data = {
+            email: document.getElementById('signInEmail').value,
+            password: document.getElementById('signInPassword').value
+        };;
+        xhttp.send(JSON.stringify(data));
+        this.refresh('Home');
     }
 
     Controller.prototype.setHomeEvents = function () {
@@ -203,4 +235,3 @@
         return !event.currentTarget.nextSibling.className.includes('add-item')
     }
 
-})()
