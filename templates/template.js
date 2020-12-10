@@ -52,7 +52,11 @@ function Login() {
 
 function Home(projects) {
     return `<header class="shadow header fixed" style="height: 56px">
+<<<<<<< HEAD
                 <h3 class="no-margin">Task Manangement</h3>
+=======
+                <h3 class="no-margin">Trello Clone</h3>
+>>>>>>> 9a307071acab2d0989a7e184528a4b675bb7eac3
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
                     <a id="nav-acc" class="nav-link">Account</a>
@@ -213,7 +217,11 @@ function TaskModal(title) {
 
 function Account() {
     return `<header class="shadow header fixed" style="height: 56px">
+<<<<<<< HEAD
                 <h3 class="no-margin">Task Manangement</h3>
+=======
+                <h3 class="no-margin">Trello Clone</h3>
+>>>>>>> 9a307071acab2d0989a7e184528a4b675bb7eac3
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
                     <a id="nav-acc" class="nav-link">Account</a>
