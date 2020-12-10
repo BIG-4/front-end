@@ -9,10 +9,19 @@ function Controller(model, view) {
     this.view.setBackground()
 }
 
+const api_url = "http://localhost:2000";
+const api_key = "ahjgdj87698bjb89#sfksdfsfb#278";
+var auth_token;
+var projects;
+
+// General Controller
+
 Controller.prototype.refresh = function (page, args) {
     if (page === 'Home') {
+
         this.view.render(page, { projects: this.model.getProjects() })
         this.setHomeEvents()
+        this.setHeaderEvents()
     } else if (page === 'Login') {
         this.view.render(page, {})
         this.setLoginEvents()
@@ -20,7 +29,52 @@ Controller.prototype.refresh = function (page, args) {
         this.currentProject = args.projectID
         this.view.render(page, { project: this.model.getProject(this.currentProject) })
         this.setProjectEvents()
+        this.setHeaderEvents()
+    } else if (page === 'Account') {
+        this.view.render(page, {})
+        this.setHeaderEvents()
     }
+}
+
+Controller.prototype.setHeaderEvents = function () {
+    this.view.addEvent('nav-home', 'click', () => this.refresh('Home'))
+    this.view.addEvent('nav-acc', 'click', () => this.refresh('Account'))
+    this.view.addEvent('nav-func', 'click', () => this.refresh('Funtion'))
+    this.view.addEvent('nav-logout', 'click', () => this.refresh('Login'))
+}
+
+Controller.prototype.postData = async function (url, data) {
+    const response = await fetch(url, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json',
+            "api_key": api_key
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+}
+
+Controller.prototype.getData = async function (url) {
+    const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json',
+            "api_key": api_key
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
 }
 
 //Controller for Login
@@ -38,27 +92,54 @@ Controller.prototype.setLoginEvents = function () {
 }
 
 Controller.prototype.signIn = function () {
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "ajaxfile.php", true);
-    xhttp.setRequestHeader("Content-Type", "application/json");
-    xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            // Response
-            var response = this.responseText;
-        }
-    };
     var data = {
-        email: document.getElementById('signInEmail').value,
+        username: document.getElementById('signInUsername').value,
         password: document.getElementById('signInPassword').value
-    };;
-    xhttp.send(JSON.stringify(data));
-    this.refresh('Home');
+    };
+    this.postData(api_url + '/users/login', data)
+        .then(res => {
+            console.log(res); // JSON data parsed by `data.json()` call
+            this.refresh('Home');
+        });
+    // this.refresh('Home');
+}
+
+Controller.prototype.validateSignUp = function (name, uname, pw, repw) {
+    if (name == '' || uname == '' || pw == '' || repw == '') return false;
+    else if (pw != repw) return false;
+    else return true;
+}
+
+Controller.prototype.signUp = function () {
+    var name = document.getElementById('signUpName').value;
+    var uname = document.getElementById('signUpUsername').value;
+    var pw = document.getElementById('signUpPw').value;
+    var repw = document.getElementById('signUpRetypePw').value;
+
+    var data = {
+        username: uname,
+        password: pw
+    };
+
+    if (!this.validateSignUp(name, uname, pw, repw)) {
+        console.log('error');
+    } else {
+        this.postData(api_url + '/users/signup', data)
+            .then(res => {
+                console.log(res); // JSON data parsed by `data.json()` call
+                this.refresh('Login');
+            });
+    }
+
 }
 
 // Controller for home page
 
 Controller.prototype.setHomeEvents = function () {
     this.view.addEvent('add-project', 'click', () => this.createProject())
+    this.view.getElements('.edit-project').forEach((button) => {
+        this.view.addEvent(button.id, 'click', () => this.editProject(button.id.split('-')[2]))
+    })
     this.view.getElements('.remove-project').forEach((button) => {
         this.view.addEvent(button.id, 'click', () => this.removeProject(button.id.split('-')[2]))
     })
@@ -68,7 +149,7 @@ Controller.prototype.setHomeEvents = function () {
 }
 
 Controller.prototype.createProject = function () {
-    this.view.showProjectModal('New Project')
+    this.view.showProjectModal('New Project', '')
     this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
 
     this.view.addEvent('modal-submit', 'click', () => {
@@ -77,6 +158,20 @@ Controller.prototype.createProject = function () {
             title: document.getElementById('p_name').value,
             lists: []
         })
+        console.log(document.getElementById('p_name').value);
+        this.refresh('Home');
+    })
+    // this.refresh('Home');
+}
+
+Controller.prototype.editProject = function (projectID) {
+    let pid = 'open-project-' + projectID;
+    console.log(document.getElementById(pid).innerHTML);
+    this.view.showProjectModal('Edit Project', document.getElementById(pid).innerHTML.trim())
+    this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
+
+    this.view.addEvent('modal-submit', 'click', () => {
+        this.model.updateProjectTitle(projectID, document.getElementById('p_name').value)
         console.log(document.getElementById('p_name').value);
         this.refresh('Home');
     })

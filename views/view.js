@@ -12,6 +12,8 @@ View.prototype.render = function (page, args) {
         document.querySelector('content').innerHTML = this.templates.Home(args.projects)
     } else if (page === 'Login') {
         document.querySelector('content').innerHTML = this.templates.Login()
+    } else if (page === 'Account') {
+        document.querySelector('content').innerHTML = this.templates.Account()
     } else if (page === 'Project') {
         let scrolled = document.querySelector('main') && document.querySelector('main').scrollLeft
         document.querySelector('content').innerHTML = this.templates.Project(args.project)
@@ -54,9 +56,9 @@ View.prototype.showHelp = function () {
                                 You can also drag and drop the items to move them around.`)
 }
 
-View.prototype.showProjectModal = function (title) {
+View.prototype.showProjectModal = function (title, name) {
     let modal = document.createElement('DIV')
-    modal.innerHTML = this.templates.ProjectModal(title)
+    modal.innerHTML = this.templates.ProjectModal(title, name)
     document.querySelector('content').appendChild(modal)
     this.addEvent('project-modal-bg', 'click', () => this.closeModal())
 }

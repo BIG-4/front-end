@@ -103,6 +103,9 @@ p{
     padding: 1.05em;
     border-radius: 3px;
 }
+.list-button {
+	justify-content: end;
+}
 .list-button + .list-button{
     border-top: 1px solid #eee;
 }
@@ -110,7 +113,8 @@ p{
     background-color: #f8f8f8;
 }
 .list-button .icon-button{
-    font-size: 1em;
+	font-size: 1.5em;
+	padding: 15px !important;
 }
 .project-button{
     width: 100%;
@@ -396,4 +400,21 @@ input {
 	margin: 0 5px;
 	height: 40px;
 	width: 40px;
+}
+
+/** Style for header */
+.nav-main .nav-link {
+	margin: 15px 20px;
+}
+.nav-main .nav-link:hover {
+	color: #FF4B2B;
+}
+
+/** Style for Account page */
+.acc-form {
+	padding: 10px 25px;
+}
+.account-header {
+	text-align: center;
+	padding: 15px;
 }

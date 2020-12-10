@@ -1,6 +1,8 @@
 
 window.app = window.app || {}
-window.app.Templates = { Login, Home, Project, Modal, ProjectModal }
+window.app.Templates = { Login, Home, Project, Modal, ProjectModal, Account }
+
+// Template for login page
 
 function Login() {
     return `
@@ -10,16 +12,17 @@ function Login() {
             <div class="form-container sign-up-container">
                 <div id="signUpForm">
                     <h1>Create Account</h1>
-                    <input type="text" name="name" placeholder="Name" />
-                    <input type="email" name="email" placeholder="Email" />
-                    <input type="password" name="password" placeholder="Password" />
+                    <input id="signUpName" type="text" name="name" placeholder="Name" required />
+                    <input id="signUpUsername" type="text" name="username" placeholder="Username" required />
+                    <input id="signUpPw" type="password" name="password" placeholder="Password" required />
+                    <input id="signUpRetypePw" type="password" name="retype-password" placeholder="Retype Password" required />
                     <button id="signUp">Sign Up</button>
                 </div>
             </div>
             <div class="form-container sign-in-container">
                 <div id="signInForm">
                     <h1>Sign in</h1>
-                    <input id="signInEmail" type="email" name="email" placeholder="Email" />
+                    <input id="signInUsername" type="text" name="username" placeholder="Username" />
                     <input id="signInPassword" type="password" name="password" placeholder="Password" />
                     <a href="#">Forgot your password?</a>
                     <button id="signIn">Sign In</button>
@@ -45,9 +48,17 @@ function Login() {
     `
 }
 
+// Template for Home page
+
 function Home(projects) {
     return `<header class="shadow header fixed" style="height: 56px">
                 <h3 class="no-margin">Trello Clone</h3>
+                <div class="nav-main">
+                    <a id="nav-home" class="nav-link">Home</a>
+                    <a id="nav-acc" class="nav-link">Account</a>
+                    <a id="nav-func" class="nav-link">Function</a>
+                    <a id="nav-logout" class="nav-link">Log Out</a>
+                </div>
             </header>
             <main class="vertical-center">
                 <div class="border-radius shadow bg-white w-50 auto-margin">
@@ -66,15 +77,47 @@ function Home(projects) {
 
 function ProjectButton({ id, title }) {
     return `<div class="flex list-button">
-                <button id="remove-project-${id}" class="icon-button color-danger remove-project">
-                    <i class="lnr lnr-cross"></i>
-                </button>
                 <button id="open-project-${id}" class="padding flex project-button"> 
-                    ${title}
-                    <i class="lnr lnr-chevron-right"></i>
+                    ${title}  
+                </button>
+                <button id="edit-project-${id}" class="icon-button color-info edit-project">
+                    <i class="lnr lnr-cog"></i>
+                </button>
+                <button id="remove-project-${id}" class="icon-button color-danger remove-project">
+                    <i class="lnr lnr-trash"></i>
                 </button>
             </div>`
 }
+
+function ProjectModal(title, p_name) {
+    console.log(p_name);
+    return `
+    <div class="modal-container">
+        <div id="project-modal-bg"></div>
+
+        <div class="modal border-radius shadow bg-white">
+            <div class="padding modal-header">
+                <h4 class="text-center no-margin">${title}</h4>
+                <button id="close-modal" class="icon-button color-danger close-modal">
+                    <i class="lnr lnr-cross"></i>
+                </button>
+            </div>
+            <div class="padding">
+                <div class="project-form">
+                    <label>Project Name: </label>
+                    <input name="p_name" id="p_name" value="${p_name}">
+                </div>
+            </div>
+            <div class="padding modal-submit">
+                <button id="modal-submit">Submit</button>
+            </div>
+            
+        </div>
+    </div>
+    `
+}
+
+// Template for project detail page
 
 function Project({ id, title, lists }) {
     return `<header class="header shadow">
@@ -133,33 +176,6 @@ function Modal(title, text, hasButtons) {
             </div>`
 }
 
-function ProjectModal(title) {
-    return `
-    <div class="modal-container">
-        <div id="project-modal-bg"></div>
-
-        <div class="modal border-radius shadow bg-white">
-            <div class="padding modal-header">
-                <h4 class="text-center no-margin">${title}</h4>
-                <button id="close-modal" class="icon-button color-danger close-modal">
-                    <i class="lnr lnr-cross"></i>
-                </button>
-            </div>
-            <div class="padding">
-                <div class="project-form">
-                    <label>Project Name: </label>
-                    <input name="p_name" id="p_name">
-                </div>
-            </div>
-            <div class="padding modal-submit">
-                <button id="modal-submit">Submit</button>
-            </div>
-            
-        </div>
-    </div>
-    `
-}
-
 function TaskModal(title) {
     return `
     <div class="modal-container">
@@ -191,4 +207,46 @@ function TaskModal(title) {
         </div>
     </div>
     `
+}
+
+// Template for account page
+
+function Account() {
+    return `<header class="shadow header fixed" style="height: 56px">
+                <h3 class="no-margin">Trello Clone</h3>
+                <div class="nav-main">
+                    <a id="nav-home" class="nav-link">Home</a>
+                    <a id="nav-acc" class="nav-link">Account</a>
+                    <a id="nav-func" class="nav-link">Function</a>
+                    <a id="nav-logout" class="nav-link">Log Out</a>
+                </div>
+            </header>
+            <main class="vertical-center">
+                <div class="border-radius shadow bg-white w-50 auto-margin">
+                    <div class="account-header">
+                        <h3 class="no-margin">Account Management</h3>
+                    </div>
+                    <div class="account-form">
+                        <div class="acc-form">
+                            <label class="label-name">Name</label>
+                            <input name="name" value="">
+                        </div>
+                        <div class="acc-form">
+                            <label class="label-current-pw">Current Password</label>
+                            <input name="current-pw">
+                        </div>
+                        <div class="acc-form">
+                            <label class="label-new-pw">New Password</label>
+                            <input name="new-pw">
+                        </div>
+                        <div class="acc-form">
+                            <label class="label-retype-pw">Retype New Password</label>
+                            <input name="retype-pw">
+                        </div>
+                        <div class="padding modal-submit">
+                            <button id="modal-submit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </main>`
 }
