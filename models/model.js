@@ -3,13 +3,117 @@
     window.app = window.app || {}
     window.app.Model = Model
 
+    const api_url = "http://localhost:2000";
+    const api_key = "ahjgdj87698bjb89#sfksdfsfb#278";
+
+
     function Model() {
-        this.projects = []
+        this.getData(api_url + '/project').then(res => {
+            this.projects = res.data;
+            console.log(res.data);
+        })
+        this.project;
     }
 
-    Model.prototype.uid = function () {
-        return Array(5).fill().map(i => Math.floor(Math.random() * (10 - 0)) + 0).join('')
+    // api
+
+    Model.prototype.getData = async function (url) {
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                "api_key": api_key,
+                "user_id": localStorage.getItem("user_id"),
+                "auth_token": localStorage.getItem("auth_token"),
+                "access_token": localStorage.getItem("access_token")
+            },
+            redirect: 'follow',
+            referrerPolicy: 'no-referrer',
+        });
+        return response.json();
     }
+
+    Model.prototype.logData = async function (url, data) {
+        const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                "api_key": api_key
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+    }
+
+    Model.prototype.createData = async function (url, data) {
+        const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                "api_key": api_key,
+                "user_id": localStorage.getItem("user_id"),
+                "auth_token": localStorage.getItem("auth_token"),
+                "access_token": localStorage.getItem("access_token")
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+    }
+
+    Model.prototype.updateData = async function (url, data) {
+        const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                "api_key": api_key,
+                "user_id": localStorage.getItem("user_id"),
+                "auth_token": localStorage.getItem("auth_token"),
+                "access_token": localStorage.getItem("access_token")
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+    }
+
+
+    Model.prototype.delData = async function (url) {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                "api_key": api_key,
+                "user_id": localStorage.getItem("user_id"),
+                "auth_token": localStorage.getItem("auth_token"),
+                "access_token": localStorage.getItem("access_token")
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+    }
+
+    // home page
 
     Model.prototype.addProject = function (project) {
         this.projects.push(project)
@@ -31,8 +135,13 @@
         return this.projects
     }
 
-    Model.prototype.getProject = function (projectID) {
-        return this.projects.find(project => project.id == projectID)
+    Model.prototype.getProject = async function (projectID) {
+        var project = await this.getData(api_url + '/project?id=' + projectID.toString())
+            .then(res => {
+                return res.data
+            })
+        console.log(project);
+        return project;
     }
 
     Model.prototype.getList = function (listID) {

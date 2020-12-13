@@ -7,7 +7,7 @@ function View(model) {
     this.templates = window.app.Templates
 }
 
-View.prototype.render = function (page, args) {
+View.prototype.render = async function (page, args) {
     if (page === 'Home') {
         document.querySelector('content').innerHTML = this.templates.Home(args.projects)
     } else if (page === 'Login') {
@@ -15,9 +15,11 @@ View.prototype.render = function (page, args) {
     } else if (page === 'Account') {
         document.querySelector('content').innerHTML = this.templates.Account()
     } else if (page === 'Project') {
-        let scrolled = document.querySelector('main') && document.querySelector('main').scrollLeft
-        document.querySelector('content').innerHTML = this.templates.Project(args.project)
-        document.querySelector('main').scrollLeft = scrolled || 0
+        var project = await args.project.then(res => {
+            return res
+        })
+        console.log(project);
+        document.querySelector('content').innerHTML = this.templates.Project(project)
     }
 }
 

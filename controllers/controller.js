@@ -11,15 +11,11 @@ function Controller(model, view) {
 
 const api_url = "http://localhost:2000";
 const api_key = "ahjgdj87698bjb89#sfksdfsfb#278";
-var auth_token;
-var projects;
-
 // General Controller
 
 Controller.prototype.refresh = function (page, args) {
     if (page === 'Home') {
-
-        this.view.render(page, { projects: this.model.getProjects() })
+        this.view.render(page, { projects: this.model.getProjects() });
         this.setHomeEvents()
         this.setHeaderEvents()
     } else if (page === 'Login') {
@@ -30,6 +26,7 @@ Controller.prototype.refresh = function (page, args) {
         this.view.render(page, { project: this.model.getProject(this.currentProject) })
         this.setProjectEvents()
         this.setHeaderEvents()
+
     } else if (page === 'Account') {
         this.view.render(page, {})
         this.setHeaderEvents()
@@ -37,43 +34,11 @@ Controller.prototype.refresh = function (page, args) {
 }
 
 Controller.prototype.setHeaderEvents = function () {
+    console.log('set Header');
     this.view.addEvent('nav-home', 'click', () => this.refresh('Home'))
     this.view.addEvent('nav-acc', 'click', () => this.refresh('Account'))
     this.view.addEvent('nav-func', 'click', () => this.refresh('Funtion'))
     this.view.addEvent('nav-logout', 'click', () => this.refresh('Login'))
-}
-
-Controller.prototype.postData = async function (url, data) {
-    const response = await fetch(url, {
-        method: 'POST',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'same-origin',
-        headers: {
-            'Content-Type': 'application/json',
-            "api_key": api_key
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(data) // body data type must match "Content-Type" header
-    });
-    return response.json(); // parses JSON response into native JavaScript objects
-}
-
-Controller.prototype.getData = async function (url) {
-    const response = await fetch(url, {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-cache',
-        credentials: 'same-origin',
-        headers: {
-            'Content-Type': 'application/json',
-            "api_key": api_key
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    });
-    return response.json(); // parses JSON response into native JavaScript objects
 }
 
 //Controller for Login
@@ -95,9 +60,13 @@ Controller.prototype.signIn = function () {
         username: document.getElementById('signInUsername').value,
         password: document.getElementById('signInPassword').value
     };
-    this.postData(api_url + '/users/login', data)
+    this.model.logData(api_url + '/users/login', data)
         .then(res => {
-            console.log(res); // JSON data parsed by `data.json()` call
+            console.log(res.data); // JSON data parsed by `data.json()` call
+            localStorage.setItem("user_id", res.data.id);
+            localStorage.setItem("auth_token", res.data.auth_token);
+            localStorage.setItem("access_token", res.data.access_token);
+
             this.refresh('Home');
         });
     // this.refresh('Home');
@@ -123,7 +92,7 @@ Controller.prototype.signUp = function () {
     if (!this.validateSignUp(name, uname, pw, repw)) {
         console.log('error');
     } else {
-        this.postData(api_url + '/users/signup', data)
+        this.model.logData(api_url + '/users/signup', data)
             .then(res => {
                 console.log(res); // JSON data parsed by `data.json()` call
                 this.refresh('Login');
@@ -143,7 +112,9 @@ Controller.prototype.setHomeEvents = function () {
         this.view.addEvent(button.id, 'click', () => this.removeProject(button.id.split('-')[2]))
     })
     this.view.getElements('.project-button').forEach((button) => {
-        this.view.addEvent(button.id, 'click', () => this.openProject(button.id.split('-')[2]))
+        this.view.addEvent(button.id, 'click', () => {
+            this.openProject(button.id.split('-')[2]);
+        })
     })
 }
 
@@ -152,40 +123,45 @@ Controller.prototype.createProject = function () {
     this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
 
     this.view.addEvent('modal-submit', 'click', () => {
-        this.model.addProject({
-            id: this.model.uid(),
-            title: document.getElementById('p_name').value,
-            lists: []
-        })
-        console.log(document.getElementById('p_name').value);
-        this.refresh('Home');
+        var data = {
+            project_name: document.getElementById('p_name').value
+        }
+        this.model.createData(api_url + "/projects/create", data)
+            .then(res => {
+                this.refresh('Home');
+            });
     })
-    // this.refresh('Home');
 }
 
 Controller.prototype.editProject = function (projectID) {
     let pid = 'open-project-' + projectID;
-    console.log(document.getElementById(pid).innerHTML);
     this.view.showProjectModal('Edit Project', document.getElementById(pid).innerHTML.trim())
     this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
 
     this.view.addEvent('modal-submit', 'click', () => {
-        this.model.updateProjectTitle(projectID, document.getElementById('p_name').value)
-        console.log(document.getElementById('p_name').value);
-        this.refresh('Home');
+        var data = {
+            project_id: projectID,
+            project_name: document.getElementById('p_name').value
+        }
+        this.model.updateData(api_url + '/projects/update', data)
+            .then(res => {
+                this.refresh('Home');
+            })
     })
-    // this.refresh('Home');
 }
 
 Controller.prototype.removeProject = function (projectID) {
     this.view.showModal('Remove project', 'Are you sure you want to remove this project?', true, () => {
-        this.model.removeProject(projectID)
-        this.refresh('Home')
+        var id = projectID.toString();
+        this.model.delData(api_url + "/projects/delete?id=" + id)
+            .then(res => {
+                this.refresh('Home');
+            })
     })
 }
 
 Controller.prototype.openProject = function (projectID) {
-    this.refresh('Project', { projectID })
+    this.refresh('Project', { projectID: projectID })
 }
 
 // Controller for Project board

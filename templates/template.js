@@ -1,10 +1,12 @@
 
 window.app = window.app || {}
+// const login = require('./login')
+
 window.app.Templates = { Login, Home, Project, Modal, ProjectModal, Account }
 
 // Template for login page
-
 function Login() {
+    console.log(typeof window.app.Templates);
     return `
     <main class="vertical-center">
         <div class="border-radius shadow w-50 auto-margin">
@@ -51,12 +53,8 @@ function Login() {
 // Template for Home page
 
 function Home(projects) {
-    return `<header class="shadow header fixed" style="height: 56px">
-<<<<<<< HEAD
+    return `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
-=======
-                <h3 class="no-margin">Trello Clone</h3>
->>>>>>> 9a307071acab2d0989a7e184528a4b675bb7eac3
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
                     <a id="nav-acc" class="nav-link">Account</a>
@@ -79,22 +77,22 @@ function Home(projects) {
             </main>`
 }
 
-function ProjectButton({ id, title }) {
+function ProjectButton({ project_id, project_name }) {
     return `<div class="flex list-button">
-                <button id="open-project-${id}" class="padding flex project-button"> 
-                    ${title}  
+                <button id="open-project-${project_id}" class="padding flex project-button"> 
+                    ${project_name}  
                 </button>
-                <button id="edit-project-${id}" class="icon-button color-info edit-project">
+                <button id="edit-project-${project_id}" class="icon-button color-info edit-project">
                     <i class="lnr lnr-cog"></i>
                 </button>
-                <button id="remove-project-${id}" class="icon-button color-danger remove-project">
+                <button id="remove-project-${project_id}" class="icon-button color-danger remove-project">
                     <i class="lnr lnr-trash"></i>
                 </button>
             </div>`
 }
 
-function ProjectModal(title, p_name) {
-    console.log(p_name);
+function ProjectModal(title, project_name) {
+    console.log(project_name);
     return `
     <div class="modal-container">
         <div id="project-modal-bg"></div>
@@ -109,7 +107,7 @@ function ProjectModal(title, p_name) {
             <div class="padding">
                 <div class="project-form">
                     <label>Project Name: </label>
-                    <input name="p_name" id="p_name" value="${p_name}">
+                    <input name="p_name" id="p_name" value="${project_name}">
                 </div>
             </div>
             <div class="padding modal-submit">
@@ -123,35 +121,34 @@ function ProjectModal(title, p_name) {
 
 // Template for project detail page
 
-function Project({ id, title, lists }) {
-    return `<header class="header shadow">
-                <div class="flex">
-                    <button id="back-page" class="icon-button color-gray back-button"><i class="lnr lnr-chevron-left"></i></button>
-                    <h3 id="project-title" class="no-margin show">${title}</h3>
-                    <input type="text" id="project-title-input" class="hide" value="${title}" placeholder="Title">
-                </div>
-                <div>
-                    <button id="help-button" class="icon-button color-info"><i class="lnr lnr-question-circle"></i></button>
+function Project({ project_id, project_name, tasks }) {
+    return `<header class="shadow header" style="height: 56px">
+                <h3 class="no-margin">Task Manangement</h3>
+                <div class="nav-main">
+                    <a id="nav-home" class="nav-link">Home</a>
+                    <a id="nav-acc" class="nav-link">Account</a>
+                    <a id="nav-func" class="nav-link">Function</a>
+                    <a id="nav-logout" class="nav-link">Log Out</a>
                 </div>
             </header>
+            <h2 class="prj-title">${project_name}</h2>
             <main class="padding row">
-                ${lists.reduce((acc, list) => acc += List(list), '')}
-                <div>
-                    <button id="add-list" project="${this.id}" class="icon-button"><i class="lnr lnr-plus-circle"></i></button>
-                </div>
+                ${List({ id: 0, title: 'Unsigned', items: [] })}
+                ${List({ id: 1, title: 'To do', items: [] })}
+                ${List({ id: 2, title: 'Doing', items: [] })}
+                ${List({ id: 3, title: 'Done', items: [] })}
+                
             </main>`
 }
 
 function List({ id, title, items }) {
     return `<div class="list bg-white shadow border-radius">
                 <div class="header border-bottom">
-                    <h4 id="list-${id}-title" class="no-margin show list-title">${title}</h4>
-                    <input id="list-${id}-title-input" type="text" class="hide list-title-input" value="${title}" placeholder="Title">
-                    <button id="remove-list-${id}" class="icon-button color-danger remove-list"><i class="lnr lnr-cross"></i></button>
+                    <h4 id="list-${id}-title" class="no-margin show list-title">${title}</h4>   
+                    <button id="add-item-${id}" class="icon-button color-info add-item droppable"><i class="lnr lnr-plus-circle"></i></button>
                 </div>
                 <div id="items-container-${id}" class="padding items-container">
                     ${items.reduce((acc, item) => acc += Item(item), '')}
-                    <button id="add-item-${id}" class="icon-button color-info add-item droppable"><i class="lnr lnr-plus-circle"></i></button>
                 </div>
             </div>`
 }
@@ -216,12 +213,8 @@ function TaskModal(title) {
 // Template for account page
 
 function Account() {
-    return `<header class="shadow header fixed" style="height: 56px">
-<<<<<<< HEAD
+    return `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
-=======
-                <h3 class="no-margin">Trello Clone</h3>
->>>>>>> 9a307071acab2d0989a7e184528a4b675bb7eac3
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
                     <a id="nav-acc" class="nav-link">Account</a>

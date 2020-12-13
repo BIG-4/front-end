@@ -51,7 +51,6 @@
 }
 .row{
     display: flex;
-    overflow: scroll;
     align-items: flex-start;
 }
 .vertical-center{
