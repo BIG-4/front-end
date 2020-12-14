@@ -1,7 +1,7 @@
 window.app = window.app || {}
 window.app.ProjectTemplate = { Project, List, Item }
 
-function Project({ project_id, project_name, tasks }) {
+function Project(project_id, project_name, tasks) {
     return `<header class="shadow header" style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">

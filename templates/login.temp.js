@@ -9,7 +9,6 @@ function Login() {
             <div class="form-container sign-up-container">
                 <div id="signUpForm">
                     <h1>Create Account</h1>
-                    <input id="signUpName" type="text" name="name" placeholder="Name" required />
                     <input id="signUpUsername" type="text" name="username" placeholder="Username" required />
                     <input id="signUpPw" type="password" name="password" placeholder="Password" required />
                     <input id="signUpRetypePw" type="password" name="retype-password" placeholder="Retype Password" required />
@@ -21,7 +20,6 @@ function Login() {
                     <h1>Sign in</h1>
                     <input id="signInUsername" type="text" name="username" placeholder="Username" />
                     <input id="signInPassword" type="password" name="password" placeholder="Password" />
-                    <a href="#">Forgot your password?</a>
                     <button id="signIn">Sign In</button>
                 </div>
             </div>

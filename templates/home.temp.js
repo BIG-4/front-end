@@ -25,18 +25,15 @@ function Home(projects) {
                 </div>
                 <div class="filter-field filter-status">
                     <select id="search-status">
-                        <option name="all">Choose status</option>
-                        <option name="0">Unsigned</option>
-                        <option name="1">To do</option>
-                        <option name="2">Doing</option>
-                        <option name="3">Done</option>
+                        <option value="all">Choose status</option>
+                        <option value="0">Unsigned</option>
+                        <option value="1">To do</option>
+                        <option value="2">Doing</option>
+                        <option value="3">Done</option>
                     </select>
                 </div>
                 <div class="search-btn">
                     <button id="search" class="btn-submit">Search</button>
-                </div>
-                <div class="search-btn">
-                    <button id="reset" class="btn-reset">Reset</button>
                 </div>
             </div>
             <main class=>

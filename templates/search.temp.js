@@ -1,8 +1,8 @@
 window.app = window.app || {}
-window.app.SearchTemplate = { ProjectModal, Search, Item }
+window.app.SearchTemplate = { ProjectModal, Search }
 
-function Search(items, projects) { //function Search(items) {
-    return `<header class="shadow header " style="height: 56px">
+function Search(items, projects, data) { //function Search(items) 
+    var result = `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
@@ -13,28 +13,22 @@ function Search(items, projects) { //function Search(items) {
             </header>
             <div class="search-filter">
                 <div class="filter-field search-key">
-                    <input id="keyword" name="keyword" type="text" placeholder="Search by keyword">
+                    <input id="search-key" name="keyword" type="text" placeholder="Search by keyword" value="${data.key}">
                 </div>
                 <div class="filter-field filter-project">
-                    <select>
+                    <select id="search-prj">
                     <option value="all">Choose a project</option>
-                    ${projects.reduce((acc, project) => acc += OptionForm(project.project_id, project.project_name), '')}
+                    ${projects.reduce((acc, project) => acc += OptionForm(project.project_id, project.project_name, data.prj), '')}
                     </select>
                 </div>
                 <div class="filter-field filter-status">
-                    <select>
+                    <select id="search-status" value="2">
                         <option value="all">Choose status</option>
-                        <option value="0">Unsigned</option>
-                        <option value="1">To do</option>
-                        <option value="2">Doing</option>
-                        <option value="3">Done</option>
+                        ${OptionStatus(data.status)}
                     </select>
                 </div>
                 <div class="search-btn">
                     <button id="search" class="btn-submit">Search</button>
-                </div>
-                <div class="search-btn">
-                    <button id="reset" class="btn-reset">Reset</button>
                 </div>
             </div>
             <main>
@@ -43,22 +37,31 @@ function Search(items, projects) { //function Search(items) {
                         <h3 class="no-margin">Search Result</h3>
                     </div>
 
-                    <div class="padding border-top">
-                    ${items.reduce((acc, item) => acc += Item(item), '')}
-                    </div>
-                </div>
-            </main>`
+                    <div class="padding border-top">`
+    if (items.length != 0) {
+        items.forEach(key => {
+            result += `
+        <div id="item-${key.task_id}-title" class="item show droppable" draggable="true">
+            <p class="no-margin border border-radius">${key.task_title}</p>
+        </div>
+        `
+        })
+    } else {
+        result += `<div><h3>Not found</h3></div>`
+    }
+
+    return result += '</div></div></main>'
 }
 
-function OptionForm(id, name) {
-    return `
-        <option value="${id}">${name}</option>
-    `
+function OptionForm(id, name, prj) {
+    return id == prj ? `<option value="${id}" selected="selected">${name}</option>` : `<option value="${id}">${name}</option>`
 }
 
-function Item({ id, title }) {
-    return `<div id="item-${id}-title" class="item show droppable" draggable="true">
-                <p class="no-margin border border-radius">${title}</p>
-            </div>
-            <textarea id="item-${id}-title-input" class="hide border border-radius item-input">${title}</textarea>`
+function OptionStatus(status) {
+    var arr = ['Unsigned', 'To do', 'Doing', 'Done'];
+    var result = ''
+    for (var i = 0; i < 4; i++) {
+        result += (i == status) ? `<option value="${i}" selected="selected">${arr[i]}</option>` : `<option value="${i}">${arr[i]}</option>`
+    }
+    return result
 }

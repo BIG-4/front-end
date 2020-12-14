@@ -18,7 +18,8 @@ View.prototype.render = async function (page, args) {
     } else if (page === 'Login') {
         document.querySelector('content').innerHTML = this.loginTemp.Login()
     } else if (page === 'Search') {
-        document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, args.projects)
+        document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, args.data, args.projects)
+        console.log(args.items);
     } else if (page === 'Account') {
         document.querySelector('content').innerHTML = this.accTemp.Account()
     } else if (page === 'Project') {

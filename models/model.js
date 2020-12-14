@@ -10,9 +10,7 @@
     function Model() {
         this.getData(api_url + '/project').then(res => {
             this.projects = res.data;
-            console.log(res.data);
         })
-        this.project;
     }
 
     // api
@@ -130,10 +128,6 @@
             })
         console.log(project);
         return project;
-    }
-
-    Model.prototype.getSearchItems = function (keyword, user, project, status) {
-
     }
 
     Model.prototype.addList = function (projectID, list) {

@@ -229,7 +229,6 @@ button {
 	font-weight: bold;
 	padding: 12px 45px;
 	letter-spacing: 1px;
-	text-transform: uppercase;
 	transition: transform 80ms ease-in;
 }
 
@@ -435,7 +434,7 @@ input {
     margin: 50px auto;
 }
 .filter-field{
-	width: 25%;
+	width: 27%;
 }
 .filter-field input, select {
 	height: 40px;
@@ -460,5 +459,7 @@ input {
     width: 100%;
     padding: 10px 10px;
     font-size: 16px;
-    font-weight: 400;
+}
+#add-project {
+	padding: 0 !important;
 }

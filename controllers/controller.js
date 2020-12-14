@@ -5,6 +5,9 @@ window.app.Controller = Controller
 function Controller(model, view) {
     this.model = model
     this.view = view
+    this.searchTemp = window.app.SearchTemplate
+    this.projectTemp = window.app.ProjectTemplate
+
     this.refresh('Login')
     this.view.setBackground()
 }
@@ -20,15 +23,17 @@ Controller.prototype.refresh = function (page, args) {
         this.setSearchEvents()
         this.setHeaderEvents()
     } else if (page === 'Search') {
-        this.view.render(page, { items: args.items, projects: this.model.getProjects() });
+        // this.view.render(page, { items: args.items, data: args.data, projects: this.model.getProjects() })
+        document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, this.model.getProjects(), args.data)
         this.setSearchEvents()
         this.setHeaderEvents()
     } else if (page === 'Login') {
         this.view.render(page, {})
         this.setLoginEvents()
     } else if (page === 'Project') {
-        this.currentProject = args.projectID
-        this.view.render(page, { project: this.model.getProject(this.currentProject) })
+        // this.currentProject = args.projectID
+        // this.view.render(page, { project: this.model.getProject(this.currentProject) })
+        document.querySelector('content').innerHTML = this.projectTemp.Project(args.project.project_id, args.project.project_name, args.project.tasks)
         this.setProjectEvents()
         this.setHeaderEvents()
 
@@ -39,11 +44,18 @@ Controller.prototype.refresh = function (page, args) {
 }
 
 Controller.prototype.setHeaderEvents = function () {
-    console.log('set Header');
     this.view.addEvent('nav-home', 'click', () => this.refresh('Home'))
     this.view.addEvent('nav-acc', 'click', () => this.refresh('Account'))
     this.view.addEvent('nav-func', 'click', () => this.refresh('Funtion'))
-    this.view.addEvent('nav-logout', 'click', () => this.refresh('Login'))
+    this.view.addEvent('nav-logout', 'click', () => this.logOut())
+}
+
+Controller.prototype.logOut = function () {
+    this.model.getData(api_url + '/users/logout', '')
+        .then(res => {
+            console.log(res.data);
+            this.refresh('Login')
+        })
 }
 
 //Controller for Login
@@ -169,7 +181,11 @@ Controller.prototype.removeProject = function (projectID) {
 }
 
 Controller.prototype.openProject = function (projectID) {
-    this.refresh('Project', { projectID: projectID })
+
+    this.model.getData(api_url + '/project?id=' + projectID.toString())
+        .then(res => {
+            this.refresh('Project', { project: res.data })
+        })
 }
 
 Controller.prototype.search = function () {
@@ -187,13 +203,21 @@ Controller.prototype.Search = function () {
     var prj = this.view.getElement('#search-prj').value
     var status = this.view.getElement('#search-status').value
 
+    var data = {
+        key: key,
+        prj: prj,
+        status: status
+    }
+
+
     var path_key = 'key=' + key
     var path_prj = prj == 'all' ? '' : '&project_id=' + prj
     var path_status = status == 'all' ? '' : '&status_id=' + status
 
-    this.model.getData(api_url + '/search?' + path_key + path_prj + path_status)
+    this.model.getData(api_url + '/tasks/search?' + path_key + path_prj + path_status)
         .then(res => {
-            this.refresh('Search', { items: res.data })
+            console.log(res.data);
+            this.refresh('Search', { items: res.data, data: data })
         })
 }
 
