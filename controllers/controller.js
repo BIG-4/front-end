@@ -17,6 +17,11 @@ Controller.prototype.refresh = function (page, args) {
     if (page === 'Home') {
         this.view.render(page, { projects: this.model.getProjects() });
         this.setHomeEvents()
+        this.setSearchEvents()
+        this.setHeaderEvents()
+    } else if (page === 'Search') {
+        this.view.render(page, { items: args.items, projects: this.model.getProjects() });
+        this.setSearchEvents()
         this.setHeaderEvents()
     } else if (page === 'Login') {
         this.view.render(page, {})
@@ -105,6 +110,9 @@ Controller.prototype.signUp = function () {
 
 Controller.prototype.setHomeEvents = function () {
     this.view.addEvent('add-project', 'click', () => this.createProject())
+    this.view.addEvent('search', 'click', () => this.search())
+    this.view.addEvent('reset', 'click', () => this.reset())
+
     this.view.getElements('.edit-project').forEach((button) => {
         this.view.addEvent(button.id, 'click', () => this.editProject(button.id.split('-')[2]))
     })
@@ -162,6 +170,35 @@ Controller.prototype.removeProject = function (projectID) {
 
 Controller.prototype.openProject = function (projectID) {
     this.refresh('Project', { projectID: projectID })
+}
+
+Controller.prototype.search = function () {
+    this.refresh('Search')
+}
+
+// Controller for Search page
+Controller.prototype.setSearchEvents = function () {
+    this.view.addEvent('search', 'click', () => this.Search())
+    this.view.addEvent('reset', 'click', () => this.Reset())
+}
+
+Controller.prototype.Search = function () {
+    var key = this.view.getElement('#search-key').value
+    var prj = this.view.getElement('#search-prj').value
+    var status = this.view.getElement('#search-status').value
+
+    var path_key = 'key=' + key
+    var path_prj = prj == 'all' ? '' : '&project_id=' + prj
+    var path_status = status == 'all' ? '' : '&status_id=' + status
+
+    this.model.getData(api_url + '/search?' + path_key + path_prj + path_status)
+        .then(res => {
+            this.refresh('Search', { items: res.data })
+        })
+}
+
+Controller.prototype.Reset = function () {
+
 }
 
 // Controller for Project board

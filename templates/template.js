@@ -2,7 +2,7 @@
 window.app = window.app || {}
 // const login = require('./login')
 
-window.app.Templates = { Login, Home, Project, Modal, ProjectModal, Account }
+window.app.Templates = { Login, Home, Project, Modal, ProjectModal, Account, Search, OptionForm }
 
 // Template for login page
 function Login() {
@@ -62,7 +62,33 @@ function Home(projects) {
                     <a id="nav-logout" class="nav-link">Log Out</a>
                 </div>
             </header>
-            <main class="vertical-center">
+            <div class="search-filter">
+                <div class="filter-field search-key">
+                    <input id="search-key" name="keyword" type="text" placeholder="Search by keyword">
+                </div>
+                <div class="filter-field filter-project">
+                    <select id="search-prj">
+                        <option value="all">Choose a project</option>
+                    ${projects.reduce((acc, project) => acc += OptionForm(project.project_id, project.project_name), '')}
+                    </select>
+                </div>
+                <div class="filter-field filter-status">
+                    <select id="search-status">
+                        <option name="all">Choose status</option>
+                        <option name="0">Unsigned</option>
+                        <option name="1">To do</option>
+                        <option name="2">Doing</option>
+                        <option name="3">Done</option>
+                    </select>
+                </div>
+                <div class="search-btn">
+                    <button id="search" class="btn-submit">Search</button>
+                </div>
+                <div class="search-btn">
+                    <button id="reset" class="btn-reset">Reset</button>
+                </div>
+            </div>
+            <main class=>
                 <div class="border-radius shadow bg-white w-50 auto-margin">
                     <div class="flex border-bottom padding">
                         <h3 class="no-margin">Projects</h3>
@@ -70,9 +96,59 @@ function Home(projects) {
                     </div>
                     ${projects.length !== 0 ?
             projects.reduce((acc, project) => acc += ProjectButton(project), '') :
+
             '<div class="padding color-gray text-center">No projects</div>'
         }
                     <div class="padding border-top"></div>
+                </div>
+            </main>`
+}
+
+function Search(items, projects) { //function Search(items) {
+    return `<header class="shadow header " style="height: 56px">
+                <h3 class="no-margin">Task Manangement</h3>
+                <div class="nav-main">
+                    <a id="nav-home" class="nav-link">Home</a>
+                    <a id="nav-acc" class="nav-link">Account</a>
+                    <a id="nav-func" class="nav-link">Function</a>
+                    <a id="nav-logout" class="nav-link">Log Out</a>
+                </div>
+            </header>
+            <div class="search-filter">
+                <div class="filter-field search-key">
+                    <input id="keyword" name="keyword" type="text" placeholder="Search by keyword">
+                </div>
+                <div class="filter-field filter-project">
+                    <select>
+                    <option value="all">Choose a project</option>
+                    ${projects.reduce((acc, project) => acc += OptionForm(project.project_id, project.project_name), '')}
+                    </select>
+                </div>
+                <div class="filter-field filter-status">
+                    <select>
+                        <option value="all">Choose status</option>
+                        <option value="0">Unsigned</option>
+                        <option value="1">To do</option>
+                        <option value="2">Doing</option>
+                        <option value="3">Done</option>
+                    </select>
+                </div>
+                <div class="search-btn">
+                    <button id="search" class="btn-submit">Search</button>
+                </div>
+                <div class="search-btn">
+                    <button id="reset" class="btn-reset">Reset</button>
+                </div>
+            </div>
+            <main>
+                <div class="border-radius shadow bg-white w-50 auto-margin">
+                    <div class="flex border-bottom padding">
+                        <h3 class="no-margin">Search Result</h3>
+                    </div>
+
+                    <div class="padding border-top">
+                    ${items.reduce((acc, item) => acc += Item(item), '')}
+                    </div>
                 </div>
             </main>`
 }
@@ -250,4 +326,10 @@ function Account() {
                     </div>
                 </div>
             </main>`
+}
+
+function OptionForm(id, name) {
+    return `
+        <option value="${id}">${name}</option>
+    `
 }

@@ -119,18 +119,6 @@
         this.projects.push(project)
     }
 
-    Model.prototype.addList = function (projectID, list) {
-        this.getProject(projectID).lists.push(list)
-    }
-
-    Model.prototype.addItem = function (listID, item) {
-        this.getList(listID).items.push(item)
-    }
-
-    Model.prototype.insertItem = function (listID, item, position) {
-        this.getList(listID).items = this.getList(listID).items.slice(0, position).concat(item).concat(this.getList(listID).items.slice(position))
-    }
-
     Model.prototype.getProjects = function () {
         return this.projects
     }
@@ -142,6 +130,22 @@
             })
         console.log(project);
         return project;
+    }
+
+    Model.prototype.getSearchItems = function (keyword, user, project, status) {
+
+    }
+
+    Model.prototype.addList = function (projectID, list) {
+        this.getProject(projectID).lists.push(list)
+    }
+
+    Model.prototype.addItem = function (listID, item) {
+        this.getList(listID).items.push(item)
+    }
+
+    Model.prototype.insertItem = function (listID, item, position) {
+        this.getList(listID).items = this.getList(listID).items.slice(0, position).concat(item).concat(this.getList(listID).items.slice(position))
     }
 
     Model.prototype.getList = function (listID) {

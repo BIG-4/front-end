@@ -4,22 +4,29 @@ window.app.View = View
 
 function View(model) {
     this.model = model
-    this.templates = window.app.Templates
+    this.loginTemp = window.app.LoginTemplate
+    this.homeTemp = window.app.HomeTemplate
+    this.searchTemp = window.app.SearchTemplate
+    this.projectTemp = window.app.ProjectTemplate
+    this.accTemp = window.app.AccountTemplate
+
 }
 
 View.prototype.render = async function (page, args) {
     if (page === 'Home') {
-        document.querySelector('content').innerHTML = this.templates.Home(args.projects)
+        document.querySelector('content').innerHTML = this.homeTemp.Home(args.projects)
     } else if (page === 'Login') {
-        document.querySelector('content').innerHTML = this.templates.Login()
+        document.querySelector('content').innerHTML = this.loginTemp.Login()
+    } else if (page === 'Search') {
+        document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, args.projects)
     } else if (page === 'Account') {
-        document.querySelector('content').innerHTML = this.templates.Account()
+        document.querySelector('content').innerHTML = this.accTemp.Account()
     } else if (page === 'Project') {
         var project = await args.project.then(res => {
             return res
         })
         console.log(project);
-        document.querySelector('content').innerHTML = this.templates.Project(project)
+        document.querySelector('content').innerHTML = this.projectTemp.Project(project)
     }
 }
 
@@ -60,14 +67,14 @@ View.prototype.showHelp = function () {
 
 View.prototype.showProjectModal = function (title, name) {
     let modal = document.createElement('DIV')
-    modal.innerHTML = this.templates.ProjectModal(title, name)
+    modal.innerHTML = this.homeTemp.ProjectModal(title, name)
     document.querySelector('content').appendChild(modal)
     this.addEvent('project-modal-bg', 'click', () => this.closeModal())
 }
 
 View.prototype.showModal = function (title, text, hasButtons, action) {
     let modal = document.createElement('DIV')
-    modal.innerHTML = this.templates.Modal(title, text, hasButtons)
+    modal.innerHTML = this.homeTemp.Modal(title, text, hasButtons)
     document.querySelector('content').appendChild(modal)
     this.addEvent('modal-bg', 'click', () => this.closeModal())
     if (hasButtons && action) {
