@@ -7,6 +7,7 @@ function Controller(model, view) {
     this.view = view
     this.searchTemp = window.app.SearchTemplate
     this.projectTemp = window.app.ProjectTemplate
+    this.homeTemp = window.app.HomeTemplate
 
     this.refresh('Login')
     this.view.setBackground()
@@ -18,7 +19,8 @@ const api_key = "ahjgdj87698bjb89#sfksdfsfb#278";
 
 Controller.prototype.refresh = function (page, args) {
     if (page === 'Home') {
-        this.view.render(page, { projects: this.model.getProjects() });
+        // this.view.render(page, { projects: this.model.getProjects() });
+        document.querySelector('content').innerHTML = this.homeTemp.Home(this.model.getProjects())
         this.setHomeEvents()
         this.setSearchEvents()
         this.setHeaderEvents()
@@ -186,10 +188,6 @@ Controller.prototype.openProject = function (projectID) {
         .then(res => {
             this.refresh('Project', { project: res.data })
         })
-}
-
-Controller.prototype.search = function () {
-    this.refresh('Search')
 }
 
 // Controller for Search page
