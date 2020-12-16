@@ -15,6 +15,9 @@ function Search(items, projects, data) { //function Search(items)
                 <div class="filter-field search-key">
                     <input id="search-key" name="keyword" type="text" placeholder="Search by keyword" value="${data.key}">
                 </div>
+                <div class="filter-field search-key">
+                    <input id="search-user" name="user" type="text" placeholder="Type an user name" value="${data.user}">
+                </div>
                 <div class="filter-field filter-project">
                     <select id="search-prj">
                     <option value="all">Choose a project</option>

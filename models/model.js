@@ -11,6 +11,10 @@
         this.getData(api_url + '/project').then(res => {
             this.projects = res.data;
         })
+
+        this.getData(api_url + '/users').then(res => {
+            this.users = res.data
+        })
     }
 
     // api
@@ -121,6 +125,10 @@
         return this.projects
     }
 
+    Model.prototype.getUsers = function () {
+        return this.users
+    }
+
     Model.prototype.getProject = async function (projectID) {
         var project = await this.getData(api_url + '/project?id=' + projectID.toString())
             .then(res => {
@@ -128,6 +136,14 @@
             })
         console.log(project);
         return project;
+    }
+
+    Model.prototype.getNumTask = async function (url) {
+        var result = await this.getData(url)
+            .then(res => {
+                return res.data
+            })
+        return result
     }
 
     Model.prototype.addList = function (projectID, list) {

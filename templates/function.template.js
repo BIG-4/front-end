@@ -1,8 +1,9 @@
 window.app = window.app || {}
 window.app.FunctionTemplate = { Funct }
 
-function Funct() {
-    return `<header class="shadow header " style="height: 56px">
+function Funct(projects, users) {
+    console.log(users);
+    return result = `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
@@ -11,32 +12,34 @@ function Funct() {
                     <a id="nav-logout" class="nav-link">Log Out</a>
                 </div>
             </header>
-            <main class="vertical-center">
-                <div class="border-radius shadow bg-white w-50 auto-margin">
-                    <div class="account-header">
-                        <h3 class="no-margin">Account Management</h3>
+            <main>
+                <div class="search-filter">
+                    <div class="filter-field filter-project">
+                        <select id="compare-prj">
+                        <option value="all">Choose a project</option>
+                        ${projects.reduce((acc, project) => acc += OptionForm(project.project_id, project.project_name), '')}
+                        </select>
+                    </div>  
+                    <div class="filter-field check-user">
+                    <span class="check-title">Choose users</span>
+                    ${users.reduce((acc, user) => acc += CheckUser(user.username), '')}
                     </div>
-                    <div class="account-form">
-                        <div class="acc-form">
-                            <label class="label-name">Name</label>
-                            <input name="name" value="">
-                        </div>
-                        <div class="acc-form">
-                            <label class="label-current-pw">Current Password</label>
-                            <input name="current-pw">
-                        </div>
-                        <div class="acc-form">
-                            <label class="label-new-pw">New Password</label>
-                            <input name="new-pw">
-                        </div>
-                        <div class="acc-form">
-                            <label class="label-retype-pw">Retype New Password</label>
-                            <input name="retype-pw">
-                        </div>
-                        <div class="padding modal-submit">
-                            <button id="modal-submit">Submit</button>
-                        </div>
+                    <div class="search-btn">
+                        <button id="submit" class="btn-submit">Submit</button>
                     </div>
                 </div>
             </main>`
+}
+
+
+function OptionForm(id, name, prj) {
+    return `< option value = "${id}" > ${name}</option > `
+}
+function CheckUser(name) {
+    return `
+        <div class="checkbox">
+            <label for= "compare-user" > ${name}</label>
+            <input name="compare-user" type="checkbox" value="${name}">
+        </div>
+         `
 }

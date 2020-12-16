@@ -9,7 +9,7 @@ function View(model) {
     this.searchTemp = window.app.SearchTemplate
     this.projectTemp = window.app.ProjectTemplate
     this.accTemp = window.app.AccountTemplate
-
+    this.functTemp = window.app.FunctionTemplate
 }
 
 View.prototype.render = async function (page, args) {
@@ -22,6 +22,8 @@ View.prototype.render = async function (page, args) {
         console.log(args.items);
     } else if (page === 'Account') {
         document.querySelector('content').innerHTML = this.accTemp.Account()
+    } else if (page === 'Function') {
+        document.querySelector('content').innerHTML = this.functTemp.Funct()
     } else if (page === 'Project') {
         var project = await args.project.then(res => {
             return res

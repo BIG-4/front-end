@@ -17,6 +17,9 @@ function Home(projects) {
                 <div class="filter-field search-key">
                     <input id="search-key" name="keyword" type="text" placeholder="Search by keyword">
                 </div>
+                <div class="filter-field search-key">
+                    <input id="search-user" name="user" type="text" placeholder="Type an user name">
+                </div>
                 <div class="filter-field filter-project">
                     <select id="search-prj">
                         <option value="all">Choose a project</option>
@@ -36,7 +39,7 @@ function Home(projects) {
                     <button id="search" class="btn-submit">Search</button>
                 </div>
             </div>
-            <main class=>
+            <main>
                 <div class="border-radius shadow bg-white w-50 auto-margin">
                     <div class="flex border-bottom padding">
                         <h3 class="no-margin">Projects</h3>

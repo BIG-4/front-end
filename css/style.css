@@ -434,7 +434,7 @@ input {
     margin: 50px auto;
 }
 .filter-field{
-	width: 27%;
+	width: 22%;
 }
 .filter-field input, select {
 	height: 40px;
@@ -462,4 +462,48 @@ input {
 }
 #add-project {
 	padding: 0 !important;
+}
+
+/** Style for function page */
+.check-user {
+	height: 40px;
+    background-color: white;
+    display: flex;
+    width: 65% !important;
+    align-items: center;
+    padding: 10px;
+}
+.check-user input {
+	height: 20px;
+	width: 30px;
+}
+.checkbox {
+	width: auto;
+    align-items: center;
+    display: flex;
+    margin-right: 10px;
+}
+.check-title {
+	margin-right: 10px;
+    font-size: 16px;
+    color: #555;
+}
+.table-container {
+	width: 80%;
+}
+.table-container table {
+	margin: 0;
+    width: 100%;
+}
+.table-container table .table-header {
+	background-color: #555;
+    color: white;
+    font-size: 20px;
+    font-weight: 800;
+}
+tr {
+	width: 50%;
+}
+td {
+	padding: 5px 10px;
 }

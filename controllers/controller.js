@@ -8,6 +8,8 @@ function Controller(model, view) {
     this.searchTemp = window.app.SearchTemplate
     this.projectTemp = window.app.ProjectTemplate
     this.homeTemp = window.app.HomeTemplate
+    this.functTemp = window.app.FunctionTemplate
+    this.compTemp = window.app.CompareTemplate
 
     this.refresh('Login')
     this.view.setBackground()
@@ -42,13 +44,24 @@ Controller.prototype.refresh = function (page, args) {
     } else if (page === 'Account') {
         this.view.render(page, {})
         this.setHeaderEvents()
+    } else if (page === 'Function') {
+        console.log(args);
+        document.querySelector('content').innerHTML = this.functTemp.Funct(this.model.getProjects(), this.model.getUsers(), args)
+        this.setHeaderEvents()
+        this.setFunctionEvents()
+    } else if (page === 'Compare') {
+        console.log(args);
+        document.querySelector('content').innerHTML = this.compTemp.Compare(this.model.getProjects(), this.model.getUsers(), args)
+        this.setHeaderEvents()
+        this.setFunctionEvents()
     }
+
 }
 
 Controller.prototype.setHeaderEvents = function () {
     this.view.addEvent('nav-home', 'click', () => this.refresh('Home'))
     this.view.addEvent('nav-acc', 'click', () => this.refresh('Account'))
-    this.view.addEvent('nav-func', 'click', () => this.refresh('Funtion'))
+    this.view.addEvent('nav-func', 'click', () => this.refresh('Function'))
     this.view.addEvent('nav-logout', 'click', () => this.logOut())
 }
 
@@ -186,6 +199,8 @@ Controller.prototype.openProject = function (projectID) {
 
     this.model.getData(api_url + '/project?id=' + projectID.toString())
         .then(res => {
+            var result = res.data
+            console.log(result);
             this.refresh('Project', { project: res.data })
         })
 }
@@ -198,21 +213,24 @@ Controller.prototype.setSearchEvents = function () {
 
 Controller.prototype.Search = function () {
     var key = this.view.getElement('#search-key').value
+    var user = this.view.getElement('#search-user').value
     var prj = this.view.getElement('#search-prj').value
     var status = this.view.getElement('#search-status').value
 
     var data = {
         key: key,
+        user: user,
         prj: prj,
         status: status
     }
 
 
     var path_key = 'key=' + key
+    var path_user = '&user=' + user
     var path_prj = prj == 'all' ? '' : '&project_id=' + prj
     var path_status = status == 'all' ? '' : '&status_id=' + status
 
-    this.model.getData(api_url + '/tasks/search?' + path_key + path_prj + path_status)
+    this.model.getData(api_url + '/tasks/search?' + path_key + path_user + path_prj + path_status)
         .then(res => {
             console.log(res.data);
             this.refresh('Search', { items: res.data, data: data })
@@ -221,6 +239,76 @@ Controller.prototype.Search = function () {
 
 Controller.prototype.Reset = function () {
 
+}
+
+// Controller for Function
+
+Controller.prototype.setFunctionEvents = function () {
+    this.view.addEvent('submit', 'click', () => this.compare())
+}
+
+Controller.prototype.compare = async function () {
+    var prj = this.view.getElement('#compare-prj').value
+
+    var users = document.getElementsByName('compare-user');
+    var checked = [];
+    for (var i = 0; i < users.length; i++) {
+        if (users[i].checked) {
+            checked.push(users[i].value);
+        }
+    }
+    var path_prj = prj == 'all' ? '' : '&project_id=' + prj
+    var result = [];
+    var url = api_url + '/tasks/count?' + path_prj
+
+    for (var i = 0; i < checked.length; i++) {
+        var data = await this.getNumTask(url, checked[i])
+            .then(res => {
+                return res
+            })
+        result.push(data)
+    }
+
+    var all_task = await this.model.getNumTask(url)
+        .then(res => {
+            return res
+        })
+
+    var data = {
+        all: all_task.number_of_tasks,
+        result: result,
+        prj: prj,
+        checked: checked
+    }
+    console.log(data);
+
+    this.refresh('Compare', data)
+
+}
+
+Controller.prototype.getNumTask = async function (url, user) {
+    var path_user = 'user=' + user
+
+    var todo = await this.model.getNumTask(url + path_user + '&status_id=1')
+        .then(res => {
+            return res
+        })
+    var doing = await this.model.getNumTask(url + path_user + '&status_id=2')
+        .then(res => {
+            return res
+        })
+    var done = await this.model.getNumTask(url + path_user + '&status_id=3')
+        .then(res => {
+            return res
+        })
+    var data = {
+        user: user,
+        todo: todo.number_of_tasks,
+        doing: doing.number_of_tasks,
+        done: done.number_of_tasks
+    }
+
+    return data
 }
 
 // Controller for Project board
