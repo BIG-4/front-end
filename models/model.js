@@ -130,7 +130,7 @@
     }
 
     Model.prototype.getProject = async function (projectID) {
-        var project = await this.getData(api_url + '/project?id=' + projectID.toString())
+    var project = await this.getData(api_url + '/project?id=' + projectID.toString())
             .then(res => {
                 return res.data
             })
@@ -212,11 +212,11 @@
         Model.prototype.getProjectsCount = function () {
             return this.projects.length
         }
-    
+
         Model.prototype.getListsCount = function () {
             return this.projects.reduce((sum, project) => sum += project.lists.length, 0)
         }
-    
+
         Model.prototype.getItemsCount = function () {
             return this.projects.reduce((sum, project) => sum += project.lists.reduce((sumI, list) => sumI += list.items.length, 0), 0)
         }

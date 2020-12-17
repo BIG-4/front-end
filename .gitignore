@@ -1,2 +1,4 @@
 /node_modules
 adminer.php
+.idea
+yarn.lock
