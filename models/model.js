@@ -138,16 +138,12 @@
         return project;
     }
 
-    Model.prototype.getNumTask = async function (url) {
+    Model.prototype.getAsyncData = async function (url) {
         var result = await this.getData(url)
             .then(res => {
                 return res.data
             })
         return result
-    }
-
-    Model.prototype.addList = function (projectID, list) {
-        this.getProject(projectID).lists.push(list)
     }
 
     Model.prototype.addItem = function (listID, item) {
@@ -171,17 +167,10 @@
     }
 
     Model.prototype.getItemList = function (itemID) {
-        let itemList
-        this.projects.forEach(project => {
-            project.lists.forEach(list => {
-                list.items.forEach(item => {
-                    if (item.id == itemID) {
-                        itemList = list
-                    }
-                })
+        this.getData(api_url + '/task?id=' + itemID)
+            .then(res => {
+                return res.data.status_id
             })
-        })
-        return itemList
     }
 
     Model.prototype.updateProjectTitle = function (projectID, title) {

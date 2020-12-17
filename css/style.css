@@ -507,3 +507,7 @@ tr {
 td {
 	padding: 5px 10px;
 }
+/** Style for Project page */
+.item p {
+	margin: 0 !important;
+}

@@ -13,10 +13,10 @@ function Project(project_id, project_name, tasks) {
             </header>
             <h2 class="prj-title">${project_name}</h2>
             <main class="padding row">
-                ${List({ id: 0, title: 'Unsigned', items: [] })}
-                ${List({ id: 1, title: 'To do', items: [] })}
-                ${List({ id: 2, title: 'Doing', items: [] })}
-                ${List({ id: 3, title: 'Done', items: [] })}
+                ${List({ id: 0, title: 'Unsigned', items: tasks.unsigned })}
+                ${List({ id: 1, title: 'To do', items: tasks.todo })}
+                ${List({ id: 2, title: 'Doing', items: tasks.doing })}
+                ${List({ id: 3, title: 'Done', items: tasks.done })}
                 
             </main>`
 }
@@ -33,9 +33,11 @@ function List({ id, title, items }) {
             </div>`
 }
 
-function Item({ id, title }) {
-    return `<div id="item-${id}-title" class="item show droppable" draggable="true">
-                <p class="no-margin border border-radius">${title}</p>
-            </div>
-            <textarea id="item-${id}-title-input" class="hide border border-radius item-input">${title}</textarea>`
+function Item({ task_id, task_title, username }) {
+    return `<div id="item-${task_id}-title" class="item show droppable" draggable="true">
+                <div class="no-margin border border-radius">
+                    <p>${task_title}</p>
+                    <p>User: ${username} </p>
+                </div>
+            </div>`
 }

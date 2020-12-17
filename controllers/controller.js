@@ -35,9 +35,8 @@ Controller.prototype.refresh = function (page, args) {
         this.view.render(page, {})
         this.setLoginEvents()
     } else if (page === 'Project') {
-        // this.currentProject = args.projectID
-        // this.view.render(page, { project: this.model.getProject(this.currentProject) })
-        document.querySelector('content').innerHTML = this.projectTemp.Project(args.project.project_id, args.project.project_name, args.project.tasks)
+        console.log(args);
+        document.querySelector('content').innerHTML = this.projectTemp.Project(args.project.project_id, args.project.project_name, args.tasks)
         this.setProjectEvents()
         this.setHeaderEvents()
 
@@ -195,14 +194,52 @@ Controller.prototype.removeProject = function (projectID) {
     })
 }
 
-Controller.prototype.openProject = function (projectID) {
+Controller.prototype.openProject = async function (projectID) {
 
-    this.model.getData(api_url + '/project?id=' + projectID.toString())
+    var project = await this.model.getAsyncData(api_url + '/project?id=' + projectID.toString())
         .then(res => {
-            var result = res.data
-            console.log(result);
-            this.refresh('Project', { project: res.data })
+            return res
         })
+
+    this.getTasksList(projectID)
+        .then(res => {
+            this.refresh('Project', { project: project, tasks: res })
+
+        })
+}
+
+Controller.prototype.getTasksList = async function (projectID) {
+    var path_prj = api_url + '/tasks/search?key=&project_id=' + projectID
+
+    var unsigned = await this.model.getAsyncData(path_prj + '&status_id=0')
+        .then(res => {
+            return res
+        })
+
+    var todo = await this.model.getAsyncData(path_prj + '&status_id=1')
+        .then(res => {
+            return res
+        })
+
+    var doing = await this.model.getAsyncData(path_prj + '&status_id=2')
+        .then(res => {
+            return res
+        })
+
+    var done = await this.model.getAsyncData(path_prj + '&status_id=3')
+        .then(res => {
+            return res
+        })
+
+    var tasks = {
+        unsigned: unsigned,
+        todo: todo,
+        doing: doing,
+        done: done
+    }
+    console.log(tasks);
+
+    return tasks
 }
 
 // Controller for Search page
@@ -237,9 +274,6 @@ Controller.prototype.Search = function () {
         })
 }
 
-Controller.prototype.Reset = function () {
-
-}
 
 // Controller for Function
 
@@ -269,7 +303,7 @@ Controller.prototype.compare = async function () {
         result.push(data)
     }
 
-    var all_task = await this.model.getNumTask(url)
+    var all_task = await this.model.getAsyncData(url)
         .then(res => {
             return res
         })
@@ -289,15 +323,15 @@ Controller.prototype.compare = async function () {
 Controller.prototype.getNumTask = async function (url, user) {
     var path_user = 'user=' + user
 
-    var todo = await this.model.getNumTask(url + path_user + '&status_id=1')
+    var todo = await this.model.getAsyncData(url + path_user + '&status_id=1')
         .then(res => {
             return res
         })
-    var doing = await this.model.getNumTask(url + path_user + '&status_id=2')
+    var doing = await this.model.getAsyncData(url + path_user + '&status_id=2')
         .then(res => {
             return res
         })
-    var done = await this.model.getNumTask(url + path_user + '&status_id=3')
+    var done = await this.model.getAsyncData(url + path_user + '&status_id=3')
         .then(res => {
             return res
         })
@@ -314,20 +348,10 @@ Controller.prototype.getNumTask = async function (url, user) {
 // Controller for Project board
 
 Controller.prototype.setProjectEvents = function () {
-    this.view.addEvent('back-page', 'click', () => this.refresh('Home'))
-    this.view.addEvent('add-list', 'click', (event) => this.createList())
-    this.view.getElements('.remove-list').forEach((button) => {
-        this.view.addEvent(button.id, 'click', () => this.removeList(button.id.split('-')[2]))
-    })
     this.view.getElements('.add-item').forEach((button) => {
         this.view.addEvent(button.id, 'click', () => this.createItem(button.id.split('-')[2]))
     })
-    this.setTitleEditionEvents('project-title', 'project-title-input', 'project')
-    this.view.getElements('.list-title').forEach((list) => {
-        this.setTitleEditionEvents(list.id, list.id + '-input', 'list')
-    })
     this.view.getElements('.item').forEach((item) => {
-        this.setTitleEditionEvents(item.id, item.id + '-input', 'item')
         this.view.addEvent(item.id, 'dragstart', (event) => this.dragStarted(event, item.id))
         this.view.addEvent(item.id, 'dragend', (event) => this.dragEnded(event, item.id))
     })
@@ -335,31 +359,6 @@ Controller.prototype.setProjectEvents = function () {
         this.view.addEvent(element.id, 'dragenter', (event) => this.dragEnter(event))
     })
     this.view.addEvent('help-button', 'click', () => this.view.showHelp())
-}
-
-Controller.prototype.setTitleEditionEvents = function (textID, inputID, type) {
-    let elementID = type === 'project' ? this.currentProject : textID.split('-')[1]
-    this.view.addEvent(textID, 'click', () => this.view.showTitleInput(textID, inputID))
-    this.view.addEvent(inputID, 'blur', () => this.changeElementTitle(type, elementID, this.view.getElement('#' + inputID).value))
-    if (type !== 'item') {
-        this.view.addEvent(inputID, 'keyup', (e) => e.code === 'Enter' && this.changeElementTitle(type, elementID, this.view.getElement('#' + inputID).value))
-    }
-}
-
-Controller.prototype.createList = function () {
-    this.model.addList(this.currentProject, {
-        id: this.model.uid(),
-        title: 'List',
-        items: [],
-    })
-    this.refresh('Project', { projectID: this.currentProject })
-}
-
-Controller.prototype.removeList = function (listID) {
-    this.view.showModal('Remove list', 'Are you sure you want to remove this list?', true, () => {
-        this.model.removeList(listID)
-        this.refresh('Project', { projectID: this.currentProject })
-    })
 }
 
 Controller.prototype.createItem = function (listID) {
@@ -375,29 +374,11 @@ Controller.prototype.removeItem = function (itemID) {
     this.refresh('Project', { projectID: this.currentProject })
 }
 
-Controller.prototype.changeElementTitle = function (type, id, value) {
-    if (value === '') {
-        if (type !== 'item') {
-            this.view.setInputError(type == 'project' ? 'project-title-input' : 'list-' + id + '-title-input')
-        } else {
-            this.removeItem(id)
-        }
-    } else {
-        if (type === 'project') {
-            this.model.updateProjectTitle(id, value)
-        } else if (type === 'list') {
-            this.model.updateListTitle(id, value)
-        } else if (type === 'item') {
-            this.model.updateItemTitle(id, value)
-        }
-        this.refresh('Project', { projectID: this.currentProject })
-    }
-}
-
 Controller.prototype.dragStarted = function (event, id) {
     event.dataTransfer.setData('id', id)
     event.dataTransfer.dropEffect = 'move'
     event.currentTarget.style.opacity = '0.6'
+    console.log('drag-start', event, id);
 }
 
 Controller.prototype.dragEnded = function (event, itemID) {
@@ -405,13 +386,18 @@ Controller.prototype.dragEnded = function (event, itemID) {
         document.querySelector('.drag-preview').remove()
     }
     event.target.style.opacity = '1'
+    console.log('drag-end');
+
 }
 
 Controller.prototype.dragEnter = function (event) {
     if (event.dataTransfer.types.includes('id') && !isPreview(event.fromElement) && !isSelected(event.currentTarget) && !previousIsSelected(event.currentTarget)) {
         event.preventDefault();
+        console.log('aaa');
         event.currentTarget.parentNode.insertBefore(this.createDragPreview(), event.currentTarget)
     }
+    console.log('drag-enter', event);
+
 }
 
 function isPreview(element) {
@@ -449,6 +435,7 @@ Controller.prototype.dragDropped = function (event) {
 
 Controller.prototype.targetPosition = function (event, sourceItemID, targetListID) {
     if (nextIsItem()) {
+        console.log('asss ', event);
         let targetItemID = event.currentTarget.nextSibling.id.split('-')[1]
         let sourceListID = this.model.getItemList(sourceItemID).id
         if (targetListID === sourceListID && this.model.getItemIndex(sourceItemID) < this.model.getItemIndex(targetItemID)) {
