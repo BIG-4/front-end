@@ -1,8 +1,7 @@
 window.app = window.app || {}
-window.app.LoginTemplate = { Login }
 
 function Login() {
-    return `
+  return `
     <main class="vertical-center">
         <div class="border-radius shadow w-50 auto-margin">
         <div class="container" id="container">
@@ -42,3 +41,5 @@ function Login() {
     </main>
     `
 }
+
+window.app.LoginTemplate = { Login }

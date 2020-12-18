@@ -1,8 +1,21 @@
+/* eslint-disable no-return-assign */
 window.app = window.app || {}
-window.app.SearchTemplate = { ProjectModal, Search }
 
-function Search(items, projects, data) { //function Search(items) 
-    var result = `<header class="shadow header " style="height: 56px">
+function OptionForm(id, name, prj) {
+  return id === prj ? `<option value="${id}" selected="selected">${name}</option>` : `<option value="${id}">${name}</option>`
+}
+
+function OptionStatus(status) {
+  const arr = ['Unsigned', 'To do', 'Doing', 'Done']
+  let result = ''
+  for (let i = 0; i < 4; i++) {
+    result += (i === status) ? `<option value="${i}" selected="selected">${arr[i]}</option>` : `<option value="${i}">${arr[i]}</option>`
+  }
+  return result
+}
+
+function Search(items, projects, data) { // function Search(items)
+  let result = `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
@@ -41,30 +54,19 @@ function Search(items, projects, data) { //function Search(items)
                     </div>
 
                     <div class="padding border-top">`
-    if (items.length != 0) {
-        items.forEach(key => {
-            result += `
+  if (items.length !== 0) {
+    items.forEach((key) => {
+      result += `
         <div id="item-${key.task_id}-title" class="item show droppable" draggable="true">
             <p class="no-margin border border-radius">${key.task_title}</p>
         </div>
         `
-        })
-    } else {
-        result += `<div><h3>Not found</h3></div>`
-    }
+    })
+  } else {
+    result += '<div><h3>Not found</h3></div>'
+  }
 
-    return result += '</div></div></main>'
+  return result += '</div></div></main>'
 }
 
-function OptionForm(id, name, prj) {
-    return id == prj ? `<option value="${id}" selected="selected">${name}</option>` : `<option value="${id}">${name}</option>`
-}
-
-function OptionStatus(status) {
-    var arr = ['Unsigned', 'To do', 'Doing', 'Done'];
-    var result = ''
-    for (var i = 0; i < 4; i++) {
-        result += (i == status) ? `<option value="${i}" selected="selected">${arr[i]}</option>` : `<option value="${i}">${arr[i]}</option>`
-    }
-    return result
-}
+window.app.SearchTemplate = { Search }

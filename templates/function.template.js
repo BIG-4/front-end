@@ -1,9 +1,20 @@
+/* eslint-disable no-return-assign */
 window.app = window.app || {}
-window.app.FunctionTemplate = { Funct }
+
+function OptionForm(id, name, prj) {
+  return `< option value = "${id}" > ${name}</option > `
+}
+function CheckUser(name) {
+  return `
+          <div class="checkbox">
+              <label for= "compare-user" > ${name}</label>
+              <input name="compare-user" type="checkbox" value="${name}">
+          </div>
+           `
+}
 
 function Funct(projects, users) {
-    console.log(users);
-    return result = `<header class="shadow header " style="height: 56px">
+  return `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
@@ -30,16 +41,4 @@ function Funct(projects, users) {
                 </div>
             </main>`
 }
-
-
-function OptionForm(id, name, prj) {
-    return `< option value = "${id}" > ${name}</option > `
-}
-function CheckUser(name) {
-    return `
-        <div class="checkbox">
-            <label for= "compare-user" > ${name}</label>
-            <input name="compare-user" type="checkbox" value="${name}">
-        </div>
-         `
-}
+window.app.FunctionTemplate = { Funct }

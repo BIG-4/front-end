@@ -1,8 +1,7 @@
 window.app = window.app || {}
-window.app.AccountTemplate = { Account }
 
 function Account() {
-    return `<header class="shadow header " style="height: 56px">
+  return `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
@@ -40,3 +39,5 @@ function Account() {
                 </div>
             </main>`
 }
+
+window.app.AccountTemplate = { Account }
