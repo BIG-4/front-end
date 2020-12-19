@@ -86,7 +86,6 @@ function Project(projectId, projectName, tasks) {
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
-                    <a id="nav-acc" class="nav-link">Account</a>
                     <a id="nav-func" class="nav-link">Function</a>
                     <a id="nav-logout" class="nav-link">Log Out</a>
                 </div>

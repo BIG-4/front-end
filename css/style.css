@@ -396,9 +396,7 @@ input {
 }
 
 /** Style for project page */
-.prj-title {
-	text-transform: uppercase;
-} 
+
 
 /** Style for search form */
 .search-filter {
@@ -485,6 +483,9 @@ tr {
 }
 td {
 	padding: 5px 10px;
+}
+table tr .ratio {
+	font-weight: 900;
 }
 /** Style for Project page */
 .item p {

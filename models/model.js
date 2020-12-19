@@ -111,19 +111,19 @@ Model.prototype.delData = async function (url) {
 
 Model.prototype.getProjects = async function () {
   this.projects = await this.getData(`${apiUrl}/project`)
-    .then((res) => res.data)
+  // .then((res) => res.data)
   return this.projects
 }
 
 Model.prototype.getUsers = async function () {
   this.users = await this.getData(`${apiUrl}/users`)
-    .then((res) => res.data)
+  // .then((res) => res.data)
   return this.users
 }
 
 Model.prototype.getStatuses = async function () {
   this.statuses = await this.getData(`${apiUrl}/status`)
-    .then((res) => res.data)
+  // .then((res) => res.data)
   return this.statuses
 }
 

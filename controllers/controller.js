@@ -9,9 +9,31 @@ function Controller(model, view) {
   this.homeTemp = window.app.HomeTemplate
   this.functTemp = window.app.FunctionTemplate
   this.compTemp = window.app.CompareTemplate
+  this.routes = window.app.Routes
 
   this.refresh('Login')
   this.view.setBackground()
+  const router = new this.routes.Router({
+    mode: 'hash',
+    root: '/',
+  })
+
+  router
+    .add(/home/, () => {
+      this.openHome()
+    })
+    .add(/project\/(.*)/, (id) => {
+      this.openProject(id)
+    })
+    .add(/function/, () => {
+      this.refresh('Function')
+    })
+    .add(/login/, () => {
+      this.refresh('Login')
+    })
+    .add(/search/, () => {
+      this.Search()
+    })
 }
 
 const apiUrl1 = 'http://localhost:2000'
@@ -51,16 +73,22 @@ Controller.prototype.refresh = function (page, args) {
 }
 
 Controller.prototype.setHeaderEvents = function () {
-  this.view.addEvent('nav-home', 'click', () => this.refresh('Home', { projects: this.model.projects, users: this.model.users, statuses: this.model.statuses }))
+  this.view.addEvent('nav-home', 'click', () => window.location.replace('/#/home'))
   this.view.addEvent('nav-acc', 'click', () => this.refresh('Account'))
-  this.view.addEvent('nav-func', 'click', () => this.refresh('Function'))
+  this.view.addEvent('nav-func', 'click', () => window.location.replace('/#/function'))
   this.view.addEvent('nav-logout', 'click', () => this.logOut())
 }
 
 Controller.prototype.openHome = async function () {
-  this.model.projects = await this.model.getProjects().then((res) => res)
-  this.model.users = await this.model.getUsers().then((res) => res)
-  this.model.statuses = await this.model.getStatuses().then((res) => res)
+  this.model.projects = await this.model.getProjects().then((res) => {
+    if (res.status === 401) {
+      alert('Please Login First !!!')
+      window.location.replace('/#/login')
+    }
+    return res.data
+  })
+  this.model.users = await this.model.getUsers().then((res) => res.data)
+  this.model.statuses = await this.model.getStatuses().then((res) => res.data)
 
   this.refresh('Home', { projects: this.model.projects, users: this.model.users, statuses: this.model.statuses })
 }
@@ -69,7 +97,9 @@ Controller.prototype.logOut = function () {
   this.model.getData(`${apiUrl1}/users/logout`, '')
     .then((res) => {
       console.log(res.data)
-      this.refresh('Login')
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('access_token')
+      window.location.replace('/#/login')
     })
 }
 
@@ -107,7 +137,7 @@ Controller.prototype.signIn = async function () {
       })
     })
 
-  this.openHome()
+  window.location.replace('/#/home')
 }
 
 Controller.prototype.validateSignUp = function (uname, pw, repw) {
@@ -141,7 +171,7 @@ Controller.prototype.signUp = function () {
 
 Controller.prototype.setHomeEvents = function () {
   this.view.addEvent('add-project', 'click', () => this.createProject())
-  this.view.addEvent('search', 'click', () => this.Search())
+  this.view.addEvent('search', 'click', () => window.location.replace('/#/search'))
   this.view.addEvent('reset', 'click', () => this.reset())
 
   this.view.getElements('.edit-project').forEach((button) => {
@@ -152,7 +182,7 @@ Controller.prototype.setHomeEvents = function () {
   })
   this.view.getElements('.project-button').forEach((button) => {
     this.view.addEvent(button.id, 'click', () => {
-      this.openProject(button.id.split('-')[2])
+      window.location.replace(`/#/project/${button.id.split('-')[2]}`)
     })
   })
 }
@@ -294,7 +324,7 @@ Controller.prototype.editItemInSearch = async function (taskID) {
 }
 
 Controller.prototype.removeItemInSearch = async function (itemID) {
-  this.view.showModal('Remove item', 'Are you sure you want to remove this item?', true, () => {
+  this.view.showModal('Remove Task', 'Are you sure you want to remove this task?', true, () => {
     const id = itemID.toString()
     this.model.delData(`${apiUrl1}/tasks/delete?id=${itemID.toString()}`)
       .then((res) => {
@@ -314,7 +344,11 @@ Controller.prototype.Compare = async function () {
   let j
   let check
   const prj = this.view.getElement('#compare-prj').value
-
+  let prjName
+  this.model.getProject(prj)
+    .then((res) => {
+      prjName = res.project_name
+    })
   const users = document.getElementsByName('compare-user')
   const checked = []
   for (i = 0; i < users.length; i++) {
@@ -341,6 +375,7 @@ Controller.prototype.Compare = async function () {
     all: allTask.number_of_tasks,
     result,
     prj,
+    prj_name: prjName,
     checked,
   }
   console.log(data)
@@ -476,7 +511,7 @@ Controller.prototype.editItem = async function (taskID, projectID) {
 }
 
 Controller.prototype.removeItem = async function (itemID, projectID) {
-  this.view.showModal('Remove item', 'Are you sure you want to remove this item?', true, () => {
+  this.view.showModal('Remove Task', 'Are you sure you want to remove this task?', true, () => {
     const id = itemID.toString()
     this.model.delData(`${apiUrl1}/tasks/delete?id=${itemID.toString()}`)
       .then((res) => {

@@ -35,15 +35,19 @@ function Table(all, result) {
   }
   table += `</tr>
           <tr>
-              <td>Personal Ratio</td>`
+              <td>Personal Performance</td>`
   for (i5 = 0; i5 < result.length; i5++) {
-    table += `<td>${result[i5].done} / ${result[i5].todo + result[i5].doing + result[i5].done}</td>`
+    const allPer = result[i5].todo + result[i5].doing + result[i5].done
+    let percent
+    if (allPer === 0) percent = 0.00
+    else percent = result[i5].done / allPer
+    table += `<td class="ratio">${percent.toFixed(2)}% (${result[i5].done}/${allPer})</td>`
   }
   table += `</tr>
           <tr>
-              <td>Project Ratio</td>`
+              <td>Project Performance</td>`
   for (i6 = 0; i6 < result.length; i6++) {
-    table += `<td>${result[i6].done} / ${all}</td>`
+    table += `<td class="ratio">${(result[i6].done / all).toFixed(2)}% (${result[i6].done}/${all})</td>`
   }
   table += `</tr>
       </table > `
@@ -64,12 +68,11 @@ function CheckUser(name, check) {
 }
 
 function Compare(projects, users, data) {
-  console.log(users)
+  console.log(data)
   let result = `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
-                    <a id="nav-acc" class="nav-link">Account</a>
                     <a id="nav-func" class="nav-link">Function</a>
                     <a id="nav-logout" class="nav-link">Log Out</a>
                 </div>
@@ -108,6 +111,8 @@ function Compare(projects, users, data) {
                         <button id="submit" class="btn-submit">Submit</button>
                     </div>
                 </div>
+                <h2 class="prj-title">Performance  Evaluation  Project "${data.prj_name}"</h2>
+
                 <div class="border-radius shadow bg-white table-container auto-margin">`
   result += Table(data.all, data.result)
 
