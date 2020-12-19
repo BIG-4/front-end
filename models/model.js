@@ -1,17 +1,21 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable max-len */
 window.app = window.app || {}
+window.app.Model = Model
 
 const apiUrl = 'http://localhost:2000'
 const apiKey = 'ahjgdj87698bjb89#sfksdfsfb#278'
 
 function Model() {
-  this.getData(`${apiUrl}/project`).then((res) => {
-    this.projects = res.data
-  })
+  // this.getData(`${apiUrl}/project`).then((res) => {
+  //   this.projects = res.data
+  // })
 
-  this.getData(`${apiUrl}/users`).then((res) => {
-    this.users = res.data
-  })
+  // this.getData(`${apiUrl}/users`).then((res) => {
+  //   this.users = res.data
+  // })
+  this.projects = []
+  this.users = []
 }
 
 // api
@@ -211,5 +215,3 @@ Model.prototype.getItemIndex = function (itemID) {
         return this.projects.reduce((sum, project) => sum += project.lists.reduce((sumI, list) => sumI += list.items.length, 0), 0)
     }
 */
-
-window.app.Model = Model

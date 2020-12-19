@@ -327,12 +327,39 @@ Controller.prototype.setProjectEvents = function () {
   })
   this.view.getElements('.item').forEach((item) => {
     this.view.addEvent(item.id, 'click', () => this.editItem(item.id.split('-')[1]))
-    this.view.addEvent(item.id, 'dragstart', (event) => this.dragStarted(event, item.id))
-    this.view.addEvent(item.id, 'dragend', (event) => this.dragEnded(event, item.id))
+    this.view.addEvent(item.id, 'dragstart', (event) => {
+      item.classList.add('dragging')
+      this.dragStarted(event, item.id)
+    })
+    this.view.addEvent(item.id, 'dragend', (event) => {
+      item.classList.remove('dragging')
+      this.dragEnded(event, item.id)
+    })
   })
-  this.view.getElements('.droppable').forEach((element) => {
-    this.view.addEvent(element.id, 'dragenter', (event) => this.dragEnter(event))
+  this.view.getElements('.container').foreach((container) => {
+    this.view.addEvent(container.id, 'dragover', (event) => {
+      event.preventDefault()
+      const afterElement = this.getDragAfterElement(container, event.clientY)
+      const draggble = document.querySelector('.dragging')
+      if (afterElement == null) {
+        container.appendChild(draggble)
+      } else {
+        container.insertBefore(draggble, afterElement)
+      }
+    })
   })
+}
+
+Controller.prototype.getDragAfterElement = function (container, y) {
+  const draggbleElements = [...container.querySelectorAll('draggble:not(dragging)')]
+  return draggbleElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect()
+    const offset = y - box.top - box.height / 2
+    if (offset < 0 && offset > closest.offset) {
+      return { offset, element: child }
+    }
+    return closest
+  }, { offset: Number.NEGATIVE_INFINITY }).element
 }
 
 Controller.prototype.createItem = function (listID) {

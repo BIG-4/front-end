@@ -43,27 +43,8 @@ p{
 .list + .list{
     margin-left: 0.75em;
 }
-.item{
-    background-color: #fff;
-}
-textarea + .item, textarea + .drag-preview{
-    padding-top: 0.75em;
-}
-textarea + .item + textarea, .drag-preview + .item {
-    margin-top: 0.75em;
-}
-#add-list{
-    margin: 0.5em;
-    font-size: 2.5em;
-    color: #fff;
-}
 .add-item{
     padding: 0;
-}
-.back-button{
-    font-size: 1.25em;
-    margin-left: -0.5em;
-    padding-right: 1em;
 }
 .header > div{
     display: flex;
@@ -188,9 +169,6 @@ p{
 
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
-* {
-	box-sizing: border-box;
-}
 
 h1 {
 	font-weight: bold;
@@ -510,4 +488,16 @@ td {
 /** Style for Project page */
 .item p {
 	margin: 0 !important;
+}
+.item{
+    background-color: #fff;
+}
+textarea + .item, textarea + .drag-preview{
+    padding-top: 0.75em;
+}
+textarea + .item + textarea, .drag-preview + .item {
+    margin-top: 0.75em;
+}
+.draggable {
+	cursor: move;
 }

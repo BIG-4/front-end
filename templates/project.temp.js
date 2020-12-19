@@ -3,7 +3,7 @@
 window.app = window.app || {}
 
 function Item({ task_id, task_title, username }) {
-  return `<div id="item-${task_id}-title" class="item show droppable" draggable="true">
+  return `<div id="item-${task_id}-title" class="item show draggable" draggable="true">
               <div class="no-margin border border-radius">
                   <p>${task_title}</p>
                   <p>User: ${username} </p>
@@ -21,7 +21,7 @@ function List({ id, title, items }) {
                   <h4 id="list-${id}-title" class="no-margin show list-title">${title}</h4>   
                   <button id="add-item-${id}" class="icon-button color-info add-item droppable"><i class="lnr lnr-plus-circle"></i></button>
               </div>
-              <div id="items-container-${id}" class="padding items-container">
+              <div id="items-container-${id}" class="padding container">
                   ${items.reduce((acc, item) => acc += Item(item), '')}
               </div>
           </div>`
