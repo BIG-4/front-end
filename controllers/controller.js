@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 window.app = window.app || {}
 
 function Controller(model, view) {
@@ -18,46 +19,50 @@ const apiUrl1 = 'http://localhost:2000'
 
 Controller.prototype.refresh = function (page, args) {
   if (page === 'Home') {
-    // this.view.render(page, { projects: this.model.getProjects() });
-    document.querySelector('content').innerHTML = this.homeTemp.Home(this.model.getProjects())
+    console.log(this.model.users)
+    document.querySelector('content').innerHTML = this.homeTemp.Home(args.projects, args.users, args.statuses)
     this.setHomeEvents()
     this.setSearchEvents()
     this.setHeaderEvents()
   } else if (page === 'Search') {
     // eslint-disable-next-line max-len
-    // this.view.render(page, { items: args.items, data: args.data, projects: this.model.getProjects() })
-    document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, this.model.getProjects(), args.data)
+    document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, this.model.projects, this.model.users, this.model.statuses, args.data)
     this.setSearchEvents()
     this.setHeaderEvents()
   } else if (page === 'Login') {
     this.view.render(page, {})
     this.setLoginEvents()
   } else if (page === 'Project') {
-    console.log(args)
     document.querySelector('content').innerHTML = this.projectTemp.Project(args.project.project_id, args.project.project_name, args.tasks)
-    this.setProjectEvents()
+    this.setProjectEvents(args.project.project_id)
     this.setHeaderEvents()
   } else if (page === 'Account') {
     this.view.render(page, {})
     this.setHeaderEvents()
   } else if (page === 'Function') {
-    console.log(args)
-    document.querySelector('content').innerHTML = this.functTemp.Funct(this.model.getProjects(), this.model.getUsers(), args)
+    document.querySelector('content').innerHTML = this.functTemp.Funct(this.model.projects, this.model.users, args)
     this.setHeaderEvents()
     this.setFunctionEvents()
   } else if (page === 'Compare') {
-    console.log(args)
-    document.querySelector('content').innerHTML = this.compTemp.Compare(this.model.getProjects(), this.model.getUsers(), args)
+    document.querySelector('content').innerHTML = this.compTemp.Compare(this.model.projects, this.model.users, args)
     this.setHeaderEvents()
     this.setFunctionEvents()
   }
 }
 
 Controller.prototype.setHeaderEvents = function () {
-  this.view.addEvent('nav-home', 'click', () => this.refresh('Home'))
+  this.view.addEvent('nav-home', 'click', () => this.refresh('Home', { projects: this.model.projects, users: this.model.users, statuses: this.model.statuses }))
   this.view.addEvent('nav-acc', 'click', () => this.refresh('Account'))
   this.view.addEvent('nav-func', 'click', () => this.refresh('Function'))
   this.view.addEvent('nav-logout', 'click', () => this.logOut())
+}
+
+Controller.prototype.openHome = async function () {
+  this.model.projects = await this.model.getProjects().then((res) => res)
+  this.model.users = await this.model.getUsers().then((res) => res)
+  this.model.statuses = await this.model.getStatuses().then((res) => res)
+
+  this.refresh('Home', { projects: this.model.projects, users: this.model.users, statuses: this.model.statuses })
 }
 
 Controller.prototype.logOut = function () {
@@ -82,7 +87,7 @@ Controller.prototype.setLoginEvents = function () {
   this.view.addEvent('signUp', 'click', () => this.signUp())
 }
 
-Controller.prototype.signIn = function () {
+Controller.prototype.signIn = async function () {
   const data = {
     username: document.getElementById('signInUsername').value,
     password: document.getElementById('signInPassword').value,
@@ -94,16 +99,15 @@ Controller.prototype.signIn = function () {
       localStorage.setItem('auth_token', res.data.auth_token)
       localStorage.setItem('access_token', res.data.access_token)
       this.model.getData(`${apiUrl1}/project`).then((res) => {
-        this.mode.projects = res.data
+        this.model.projects = res.data
       })
 
       this.model.getData(`${apiUrl1}/users`).then((res) => {
         this.model.users = res.data
       })
-
-      this.refresh('Home')
     })
-    // this.refresh('Home');
+
+  this.openHome()
 }
 
 Controller.prototype.validateSignUp = function (uname, pw, repw) {
@@ -137,7 +141,7 @@ Controller.prototype.signUp = function () {
 
 Controller.prototype.setHomeEvents = function () {
   this.view.addEvent('add-project', 'click', () => this.createProject())
-  this.view.addEvent('search', 'click', () => this.search())
+  this.view.addEvent('search', 'click', () => this.Search())
   this.view.addEvent('reset', 'click', () => this.reset())
 
   this.view.getElements('.edit-project').forEach((button) => {
@@ -163,7 +167,7 @@ Controller.prototype.createProject = function () {
     }
     this.model.createData(`${apiUrl1}/projects/create`, data)
       .then((res) => {
-        this.refresh('Home')
+        this.openHome()
       })
   })
 }
@@ -180,7 +184,7 @@ Controller.prototype.editProject = function (projectID) {
     }
     this.model.updateData(`${apiUrl1}/projects/update`, data)
       .then((res) => {
-        this.refresh('Home')
+        this.openHome()
       })
   })
 }
@@ -190,7 +194,7 @@ Controller.prototype.removeProject = function (projectID) {
     const id = projectID.toString()
     this.model.delData(`${apiUrl1}/projects/delete?id=${id}`)
       .then((res) => {
-        this.refresh('Home')
+        this.openHome()
       })
   })
 }
@@ -234,7 +238,12 @@ Controller.prototype.getTasksList = async function (projectID) {
 // Controller for Search page
 Controller.prototype.setSearchEvents = function () {
   this.view.addEvent('search', 'click', () => this.Search())
-  this.view.addEvent('reset', 'click', () => this.Reset())
+  this.view.getElements('.item-detail').forEach((item) => {
+    this.view.addEvent(item.id, 'click', () => this.editItemInSearch(item.id.split('-')[1]))
+  })
+  this.view.getElements('.remove-item').forEach((item) => {
+    this.view.addEvent(item.id, 'click', () => this.removeItemInSearch(item.id.split('-')[2]))
+  })
 }
 
 Controller.prototype.Search = function () {
@@ -251,7 +260,7 @@ Controller.prototype.Search = function () {
   }
 
   const pathKey = `key=${key}`
-  const pathUser = `&user=${user}`
+  const pathUser = user === 'all' ? '' : `&user_id=${user}`
   const pathPrj = prj === 'all' ? '' : `&project_id=${prj}`
   const pathStatus = status === 'all' ? '' : `&status_id=${status}`
 
@@ -262,13 +271,45 @@ Controller.prototype.Search = function () {
     })
 }
 
+Controller.prototype.editItemInSearch = async function (taskID) {
+  const url = `${apiUrl1}/task?id=${taskID.toString()}`
+  const item = await this.model.getAsyncData(url)
+    .then((res) => res)
+  this.view.showItemModal('Edit Task', item.task_title, item.user_id, this.model.users)
+  this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
+
+  this.view.addEvent('modal-submit', 'click', () => {
+    const data = {
+      task_id: parseInt(taskID),
+      task_title: document.getElementById('t_name').value,
+      project_id: item.project_id,
+      user_id: document.getElementById('t_user').value,
+      status_id: item.status_id,
+    }
+    this.model.updateData(`${apiUrl1}/tasks/update`, data)
+      .then((res) => {
+        this.Search()
+      })
+  })
+}
+
+Controller.prototype.removeItemInSearch = async function (itemID) {
+  this.view.showModal('Remove item', 'Are you sure you want to remove this item?', true, () => {
+    const id = itemID.toString()
+    this.model.delData(`${apiUrl1}/tasks/delete?id=${itemID.toString()}`)
+      .then((res) => {
+        this.Search()
+      })
+  })
+}
+
 // Controller for Function
 
 Controller.prototype.setFunctionEvents = function () {
-  this.view.addEvent('submit', 'click', () => this.compare())
+  this.view.addEvent('submit', 'click', () => this.Compare())
 }
 
-Controller.prototype.compare = async function () {
+Controller.prototype.Compare = async function () {
   let i
   let j
   let check
@@ -277,6 +318,7 @@ Controller.prototype.compare = async function () {
   const users = document.getElementsByName('compare-user')
   const checked = []
   for (i = 0; i < users.length; i++) {
+    console.log(users[i])
     if (users[i].checked) {
       checked.push(users[i].value)
     }
@@ -307,7 +349,7 @@ Controller.prototype.compare = async function () {
 }
 
 Controller.prototype.getNumTask = async function (url, user) {
-  const pathUser = `user=${user}`
+  const pathUser = `&user=${user}`
 
   const todo = await this.model.getAsyncData(`${url + pathUser}&status_id=1`)
     .then((res) => res)
@@ -327,22 +369,21 @@ Controller.prototype.getNumTask = async function (url, user) {
 
 // Controller for Project board
 
-Controller.prototype.setProjectEvents = function () {
+Controller.prototype.setProjectEvents = function (projectID) {
   this.view.getElements('.add-item').forEach((button) => {
-    this.view.addEvent(button.id, 'click', () => this.createItem(button.id.split('-')[2]))
+    this.view.addEvent(button.id, 'click', () => this.createItem(button.id.split('-')[2], projectID))
   })
   this.view.getElements('.item').forEach((item) => {
-    this.view.addEvent(item.id, 'click', () => this.editItem(item.id.split('-')[1]))
     this.view.addEvent(item.id, 'dragstart', (event) => {
       item.classList.add('dragging')
-      this.dragStarted(event, item.id)
     })
     this.view.addEvent(item.id, 'dragend', (event) => {
       item.classList.remove('dragging')
-      this.dragEnded(event, item.id)
+
+      this.updateDragDropItem(item.id, projectID)
     })
   })
-  this.view.getElements('.container').foreach((container) => {
+  this.view.getElements('.container').forEach((container) => {
     this.view.addEvent(container.id, 'dragover', (event) => {
       event.preventDefault()
       const afterElement = this.getDragAfterElement(container, event.clientY)
@@ -353,6 +394,12 @@ Controller.prototype.setProjectEvents = function () {
         container.insertBefore(draggble, afterElement)
       }
     })
+  })
+  this.view.getElements('.item-detail').forEach((item) => {
+    this.view.addEvent(item.id, 'click', () => this.editItem(item.id.split('-')[1], projectID))
+  })
+  this.view.getElements('.remove-item').forEach((item) => {
+    this.view.addEvent(item.id, 'click', () => this.removeItem(item.id.split('-')[2], projectID))
   })
 }
 
@@ -368,8 +415,28 @@ Controller.prototype.getDragAfterElement = function (container, y) {
   }, { offset: Number.NEGATIVE_INFINITY }).element
 }
 
-Controller.prototype.createItem = function (listID) {
-  this.view.showItemModal('New Task', '', 'all', this.model.getUsers())
+Controller.prototype.updateDragDropItem = async function (taskID, projectID) {
+  const parent = document.querySelector(`#${taskID}`).parentNode
+  const id = taskID.split('-')[1]
+  const status = parent.id.split('-')[2]
+  const url = `${apiUrl1}/task?id=${id}`
+  const item = await this.model.getAsyncData(url)
+    .then((res) => res)
+  const data = {
+    task_id: id,
+    task_title: item.task_title,
+    project_id: item.project_id,
+    user_id: item.user_id,
+    status_id: status,
+  }
+  this.model.updateData(`${apiUrl1}/tasks/update`, data)
+    .then((res) => {
+      this.openProject(projectID)
+    })
+}
+
+Controller.prototype.createItem = function (listID, projectID) {
+  this.view.showItemModal('New Task', '', 'all', this.model.users)
   this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
 
   this.view.addEvent('modal-submit', 'click', () => {
@@ -381,21 +448,21 @@ Controller.prototype.createItem = function (listID) {
     }
     this.model.createData(`${apiUrl1}/tasks/create`, data)
       .then((res) => {
-        this.refresh('Project')
+        this.openProject(projectID)
       })
   })
 }
 
-Controller.prototype.editItem = async function (taskID) {
+Controller.prototype.editItem = async function (taskID, projectID) {
   const url = `${apiUrl1}/task?id=${taskID.toString()}`
   const item = await this.model.getAsyncData(url)
     .then((res) => res)
-  this.view.showItemModal('Edit Task', item.task_title, item.user_id, this.model.getUsers())
+  this.view.showItemModal('Edit Task', item.task_title, item.user_id, this.model.users)
   this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
 
   this.view.addEvent('modal-submit', 'click', () => {
     const data = {
-      task_id: taskID,
+      task_id: parseInt(taskID),
       task_title: document.getElementById('t_name').value,
       project_id: item.project_id,
       user_id: document.getElementById('t_user').value,
@@ -403,72 +470,19 @@ Controller.prototype.editItem = async function (taskID) {
     }
     this.model.updateData(`${apiUrl1}/tasks/update`, data)
       .then((res) => {
-        this.refresh('Project')
+        this.openProject(projectID)
       })
   })
 }
 
-Controller.prototype.removeItem = function (itemID) {
-  this.model.removeItem(itemID)
-  this.refresh('Project', { projectID: this.currentProject })
-}
-
-Controller.prototype.dragStarted = function (event, id) {
-  event.dataTransfer.setData('id', id)
-  event.dataTransfer.dropEffect = 'move'
-  event.currentTarget.style.opacity = '0.6'
-  console.log('drag-start', event, id)
-}
-
-Controller.prototype.dragEnded = function (event, itemID) {
-  if (document.querySelector('.drag-preview')) {
-    document.querySelector('.drag-preview').remove()
-  }
-  event.target.style.opacity = '1'
-  console.log('drag-end')
-}
-
-Controller.prototype.dragEnter = function (event) {
-  // eslint-disable-next-line no-use-before-define
-  if (event.dataTransfer.types.includes('id') && !isPreview(event.fromElement) && !isSelected(event.currentTarget) && !previousIsSelected(event.currentTarget)) {
-    event.preventDefault()
-    console.log('aaa')
-    event.currentTarget.parentNode.insertBefore(this.createDragPreview(), event.currentTarget)
-  }
-  console.log('drag-enter', event)
-}
-
-function isPreview(element) {
-  return element && element.className === 'drag-preview'
-}
-
-function isSelected(element) {
-  return element && element.style && element.style.opacity === '0.6'
-}
-
-function previousIsSelected(element) {
-  return Array.from(element.parentNode.children).findIndex((el) => el === element) !== 0 && Array.from(element.parentNode.children)[Array.from(element.parentNode.children).findIndex((el) => el === element) - 2].style.opacity === '0.6'
-}
-
-Controller.prototype.createDragPreview = function () {
-  document.querySelectorAll('.drag-preview').forEach((element) => element.remove())
-  const previewElement = document.createElement('div')
-  previewElement.className = 'drag-preview'
-  previewElement.innerHTML = '<div class="dashed"></>'
-  previewElement.ondragover = (event) => event.preventDefault()
-  previewElement.ondragleave = (event) => event.currentTarget.remove()
-  previewElement.ondrop = (event) => this.dragDropped(event)
-  return previewElement
-}
-
-Controller.prototype.dragDropped = function (event) {
-  const sourceItemID = event.dataTransfer.getData('id').split('-')[1]
-  const sourceItem = { ...this.model.getItem(sourceItemID) }
-  const targetListID = event.currentTarget.parentNode.id.split('-')[2]
-  const targetPosition = this.targetPosition(event, sourceItemID, targetListID)
-  this.model.removeItem(sourceItemID)
-  this.model.insertItem(targetListID, sourceItem, targetPosition)
-  this.refresh('Project', { projectID: this.currentProject })
+Controller.prototype.removeItem = async function (itemID, projectID) {
+  this.view.showModal('Remove item', 'Are you sure you want to remove this item?', true, () => {
+    const id = itemID.toString()
+    this.model.delData(`${apiUrl1}/tasks/delete?id=${itemID.toString()}`)
+      .then((res) => {
+        this.openProject(projectID)
+      })
+  })
 }
 
 window.app.Controller = Controller

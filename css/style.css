@@ -143,7 +143,8 @@ p{
 	padding: 0 !important;
 }
 .modal{
-    position: absolute;
+	position: absolute;
+	width: 700px;
     max-width: 90%;
 }
 .modal p{
@@ -474,7 +475,7 @@ input {
     width: 100%;
 }
 .table-container table .table-header {
-	background-color: #555;
+	background-color: #FF4B2B;
     color: white;
     font-size: 20px;
     font-weight: 800;
@@ -490,14 +491,20 @@ td {
 	margin: 0 !important;
 }
 .item{
-    background-color: #fff;
+	background-color: #fff;
+	margin: 5px 0px;
 }
-textarea + .item, textarea + .drag-preview{
-    padding-top: 0.75em;
-}
-textarea + .item + textarea, .drag-preview + .item {
-    margin-top: 0.75em;
+.item-detail {
+	padding-right: 20px;
 }
 .draggable {
 	cursor: move;
+}
+.remove-item {
+	float: right;
+    padding: 0;
+    font-size: 20px;
+}
+.remove-item i:before {
+	font-weight: 900;
 }

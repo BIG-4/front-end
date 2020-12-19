@@ -7,15 +7,9 @@ const apiUrl = 'http://localhost:2000'
 const apiKey = 'ahjgdj87698bjb89#sfksdfsfb#278'
 
 function Model() {
-  // this.getData(`${apiUrl}/project`).then((res) => {
-  //   this.projects = res.data
-  // })
-
-  // this.getData(`${apiUrl}/users`).then((res) => {
-  //   this.users = res.data
-  // })
   this.projects = []
   this.users = []
+  this.statuses = []
 }
 
 // api
@@ -115,18 +109,22 @@ Model.prototype.delData = async function (url) {
   return response.json() // parses JSON response into native JavaScript objects
 }
 
-// home page
-
-Model.prototype.addProject = function (project) {
-  this.projects.push(project)
-}
-
-Model.prototype.getProjects = function () {
+Model.prototype.getProjects = async function () {
+  this.projects = await this.getData(`${apiUrl}/project`)
+    .then((res) => res.data)
   return this.projects
 }
 
-Model.prototype.getUsers = function () {
+Model.prototype.getUsers = async function () {
+  this.users = await this.getData(`${apiUrl}/users`)
+    .then((res) => res.data)
   return this.users
+}
+
+Model.prototype.getStatuses = async function () {
+  this.statuses = await this.getData(`${apiUrl}/status`)
+    .then((res) => res.data)
+  return this.statuses
 }
 
 Model.prototype.getProject = async function (projectID) {
@@ -142,76 +140,14 @@ Model.prototype.getAsyncData = async function (url) {
   return result
 }
 
-Model.prototype.addItem = function (listID, item) {
-  this.getList(listID).items.push(item)
-}
-
-Model.prototype.insertItem = function (listID, item, position) {
-  this.getList(listID).items = this.getList(listID).items.slice(0, position).concat(item).concat(this.getList(listID).items.slice(position))
-}
-
-Model.prototype.getList = function (listID) {
-  return this.getListProject(listID).lists.find((list) => list.id === listID)
-}
-
-Model.prototype.getListProject = function (listID) {
-  return this.projects.find((project) => project.lists.find((list) => list.id === listID))
-}
-
-Model.prototype.getItem = function (itemID) {
-  return this.getItemList(itemID).items.find((item) => item.id === itemID)
-}
-
 Model.prototype.getItemList = function (itemID) {
   this.getData(`${apiUrl}/task?id=${itemID}`)
     .then((res) => res.data.status_id)
 }
 
-Model.prototype.updateProjectTitle = function (projectID, title) {
-  this.getProject(projectID).title = title
-}
-
-Model.prototype.updateListTitle = function (listID, title) {
-  this.getList(listID).title = title
-}
-
-Model.prototype.updateItemTitle = function (itemID, title) {
-  this.getItem(itemID).title = title
-}
-
-Model.prototype.removeProject = function (projectID) {
-  this.projects.splice(this.getProjectIndex(projectID), 1)
-}
-
-Model.prototype.removeList = function (listID) {
-  this.getListProject(listID).lists.splice(this.getListIndex(listID), 1)
-}
-
 Model.prototype.removeItem = function (itemID) {
-  this.getItemList(itemID).items.splice(this.getItemIndex(itemID), 1)
+  this.delData(`${apiUrl}/tasks/delete?id=${itemID.toString()}`)
+    .then((res) => {
+      console.log(res)
+    })
 }
-
-Model.prototype.getProjectIndex = function (projectID) {
-  return this.projects.findIndex((project) => project.id === projectID)
-}
-
-Model.prototype.getListIndex = function (listID) {
-  return this.getListProject(listID).lists.findIndex((list) => list.id === listID)
-}
-
-Model.prototype.getItemIndex = function (itemID) {
-  return this.getItemList(itemID).items.findIndex((item) => item.id === itemID)
-}
-/*
-    Model.prototype.getProjectsCount = function () {
-        return this.projects.length
-    }
-
-    Model.prototype.getListsCount = function () {
-        return this.projects.reduce((sum, project) => sum += project.lists.length, 0)
-    }
-
-    Model.prototype.getItemsCount = function () {
-        return this.projects.reduce((sum, project) => sum += project.lists.reduce((sumI, list) => sumI += list.items.length, 0), 0)
-    }
-*/

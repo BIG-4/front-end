@@ -4,7 +4,10 @@ window.app = window.app || {}
 
 function Item({ task_id, task_title, username }) {
   return `<div id="item-${task_id}-title" class="item show draggable" draggable="true">
-              <div class="no-margin border border-radius">
+              <button id="remove-item-${task_id}" class="icon-button color-danger remove-item">
+                  <i class="lnr lnr-cross"></i>
+              </button> 
+              <div id="item-${task_id}-detail" class="no-margin border border-radius item-detail">
                   <p>${task_title}</p>
                   <p>User: ${username} </p>
               </div>
@@ -27,7 +30,7 @@ function List({ id, title, items }) {
           </div>`
 }
 
-function ItemModal(title, taskName, user, users) {
+function ItemModal(title, taskName, chooseUser, users) {
   console.log(this.users)
   return `
     <div class="modal-container">
@@ -48,8 +51,7 @@ function ItemModal(title, taskName, user, users) {
                 <div class="project-form">
                     <label>User: </label>
                     <select id="t_user">
-                      <option value="all">Choose user</option>
-                      ${users.reduce((acc, user) => acc += OptionForm(user.id, user.username, user), '')}
+                      ${users.reduce((acc, user) => acc += OptionForm(user.id, user.username, chooseUser), '')}
                     </select>
                 </div>
             </div>

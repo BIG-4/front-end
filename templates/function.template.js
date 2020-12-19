@@ -2,7 +2,7 @@
 window.app = window.app || {}
 
 function OptionForm(id, name, prj) {
-  return `< option value = "${id}" > ${name}</option > `
+  return `<option value = "${id}" > ${name}</option> `
 }
 function CheckUser(name) {
   return `

@@ -51,15 +51,16 @@ function Table(all, result) {
   return table
 }
 
-function OptionForm(id, name, prj) {
-  return id === prj ? `<option value="${id}" selected="selected">${name}</option>` : `<option value="${id}">${name}</option>`
-}
-function CheckUser(name, users) {
-  return `
-      <div class="checkbox">
-          <input name="compare-user" type="checkbox" value="${name}">
+function CheckUser(name, check) {
+  return name === check
+    ? `<div class="checkbox">
+          <input name="compare-user" type="checkbox" value="${name}" checked>
           <label for= "compare-user" > ${name}</label>
       </div>`
+    : `<div class="checkbox">
+      <input name="compare-user" type="checkbox" value="${name}">
+      <label for= "compare-user" > ${name}</label>
+  </div>`
 }
 
 function Compare(projects, users, data) {
@@ -77,14 +78,32 @@ function Compare(projects, users, data) {
                 <div class="search-filter">
                     <div class="filter-field filter-project">
                         <select id="compare-prj">
-                        <option value="all">Choose a project</option>
-                        ${projects.reduce((acc, project) => acc += OptionForm(project.project_id, project.project_name, data.prj), '')}
-                        </select>
+                        <option value="all">Choose a project</option>`
+  projects.forEach((project) => {
+    if (project.project_id.toString() === data.prj) {
+      result += `<option value="${project.project_id}" selected>${project.project_name}</option>`
+    } else {
+      result += `<option value="${project.project_id}">${project.project_name}</option>`
+    }
+  })
+  result += `</select>
                     </div>  
                     <div class="filter-field check-user">
-                        <span class="check-title">Choose users</span>
-                    ${users.reduce((acc, user) => acc += CheckUser(user.username, data.checked), '')}
-                    </div>
+                        <span class="check-title">Choose users</span>`
+  users.forEach((user) => {
+    if (data.checked.includes(user.username)) {
+      result += `<div class="checkbox">
+      <input name="compare-user" type="checkbox" value="${user.username}" checked>
+      <label for= "compare-user" > ${user.username}</label>
+  </div>`
+    } else {
+      result += `<div class="checkbox">
+      <input name="compare-user" type="checkbox" value="${user.username}">
+      <label for= "compare-user" > ${user.username}</label>
+  </div>`
+    }
+  })
+  result += `</div>
                     <div class="search-btn">
                         <button id="submit" class="btn-submit">Submit</button>
                     </div>

@@ -1,20 +1,9 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-return-assign */
 window.app = window.app || {}
 
-function OptionForm(id, name, prj) {
-  return id === prj ? `<option value="${id}" selected="selected">${name}</option>` : `<option value="${id}">${name}</option>`
-}
-
-function OptionStatus(status) {
-  const arr = ['Unsigned', 'To do', 'Doing', 'Done']
-  let result = ''
-  for (let i = 0; i < 4; i++) {
-    result += (i === status) ? `<option value="${i}" selected="selected">${arr[i]}</option>` : `<option value="${i}">${arr[i]}</option>`
-  }
-  return result
-}
-
-function Search(items, projects, data) { // function Search(items)
+function Search(items, projects, users, statuses, data) { // function Search(items)
+  console.log(data)
   let result = `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
@@ -28,20 +17,41 @@ function Search(items, projects, data) { // function Search(items)
                 <div class="filter-field search-key">
                     <input id="search-key" name="keyword" type="text" placeholder="Search by keyword" value="${data.key}">
                 </div>
-                <div class="filter-field search-key">
-                    <input id="search-user" name="user" type="text" placeholder="Type an user name" value="${data.user}">
+                <div class="filter-field filter-user">
+                    <select id="search-user">
+                        <option value="all">Choose a user</option>`
+  users.forEach((user) => {
+    if (user.id.toString() === data.user) {
+      result += `<option value="${user.id}" selected>${user.username}</option>`
+    } else {
+      result += `<option value="${user.id}">${user.username}</option>`
+    }
+  })
+  result += `</select>
                 </div>
                 <div class="filter-field filter-project">
-                    <select id="search-prj">
-                    <option value="all">Choose a project</option>
-                    ${projects.reduce((acc, project) => acc += OptionForm(project.project_id, project.project_name, data.prj), '')}
-                    </select>
+                    <select id="search-prj" value=${data.prj}>
+                        <option value="all">Choose a project</option>`
+  projects.forEach((project) => {
+    if (project.project_id.toString() === data.prj) {
+      result += `<option value="${project.project_id}" selected>${project.project_name}</option>`
+    } else {
+      result += `<option value="${project.project_id}">${project.project_name}</option>`
+    }
+  })
+  result += `</select>
                 </div>
                 <div class="filter-field filter-status">
-                    <select id="search-status" value="2">
-                        <option value="all">Choose status</option>
-                        ${OptionStatus(data.status)}
-                    </select>
+                    <select id="search-status">
+                        <option value="all">Choose status</option>`
+  statuses.forEach((status) => {
+    if (status.id.toString() === data.status) {
+      result += `<option value="${status.id}" selected>${status.name}</option>`
+    } else {
+      result += `<option value="${status.id}">${status.name}</option>`
+    }
+  })
+  result += ` </select>
                 </div>
                 <div class="search-btn">
                     <button id="search" class="btn-submit">Search</button>
@@ -57,9 +67,16 @@ function Search(items, projects, data) { // function Search(items)
   if (items.length !== 0) {
     items.forEach((key) => {
       result += `
-        <div id="item-${key.task_id}-title" class="item show droppable" draggable="true">
-            <p class="no-margin border border-radius">${key.task_title}</p>
-        </div>
+      <div>
+      <div id="item-${key.task_id}-title" class="item show">
+          <button id="remove-item-${key.task_id}" class="icon-button color-danger remove-item">
+              <i class="lnr lnr-cross"></i>
+          </button> 
+          <div id="item-${key.task_id}-detail" class="no-margin border border-radius item-detail">
+              <p>${key.task_title}</p>
+              <p>User: ${key.username} </p>
+          </div>
+      </div></div>
         `
     })
   } else {

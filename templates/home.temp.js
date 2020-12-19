@@ -67,7 +67,7 @@ function OptionForm(id, name) {
     `
 }
 
-function Home(projects) {
+function Home(projects, users, statuses) {
   return `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin">Task Manangement</h3>
                 <div class="nav-main">
@@ -81,8 +81,11 @@ function Home(projects) {
                 <div class="filter-field search-key">
                     <input id="search-key" name="keyword" type="text" placeholder="Search by keyword">
                 </div>
-                <div class="filter-field search-key">
-                    <input id="search-user" name="user" type="text" placeholder="Type an user name">
+                <div class="filter-field filter-user">
+                    <select id="search-user">
+                        <option value="all">Choose a user</option>
+                    ${users.reduce((acc, user) => acc += OptionForm(user.id, user.username), '')}
+                    </select>
                 </div>
                 <div class="filter-field filter-project">
                     <select id="search-prj">
@@ -93,10 +96,7 @@ function Home(projects) {
                 <div class="filter-field filter-status">
                     <select id="search-status">
                         <option value="all">Choose status</option>
-                        <option value="0">Unsigned</option>
-                        <option value="1">To do</option>
-                        <option value="2">Doing</option>
-                        <option value="3">Done</option>
+                    ${statuses.reduce((acc, status) => acc += OptionForm(status.id, status.name), '')}
                     </select>
                 </div>
                 <div class="search-btn">
