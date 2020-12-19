@@ -93,20 +93,26 @@ Controller.prototype.signIn = function () {
       localStorage.setItem('user_id', res.data.id)
       localStorage.setItem('auth_token', res.data.auth_token)
       localStorage.setItem('access_token', res.data.access_token)
+      this.model.getData(`${apiUrl1}/project`).then((res) => {
+        this.mode.projects = res.data
+      })
+
+      this.model.getData(`${apiUrl1}/users`).then((res) => {
+        this.model.users = res.data
+      })
 
       this.refresh('Home')
     })
     // this.refresh('Home');
 }
 
-Controller.prototype.validateSignUp = function (name, uname, pw, repw) {
-  if (name === '' || uname === '' || pw === '' || repw === '') return false
+Controller.prototype.validateSignUp = function (uname, pw, repw) {
+  if (uname === '' || pw === '' || repw === '') return false
   if (pw !== repw) return false
   return true
 }
 
 Controller.prototype.signUp = function () {
-  const name = document.getElementById('signUpName').value
   const uname = document.getElementById('signUpUsername').value
   const pw = document.getElementById('signUpPw').value
   const repw = document.getElementById('signUpRetypePw').value
@@ -116,7 +122,7 @@ Controller.prototype.signUp = function () {
     password: pw,
   }
 
-  if (!this.validateSignUp(name, uname, pw, repw)) {
+  if (!this.validateSignUp(uname, pw, repw)) {
     console.log('error')
   } else {
     this.model.logData(`${apiUrl1}/users/signup`, data)
