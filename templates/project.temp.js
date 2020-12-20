@@ -31,7 +31,6 @@ function List({ id, title, items }) {
 }
 
 function ItemModal(title, taskName, chooseUser, users) {
-  console.log(users, chooseUser)
   let result = `
     <div class="modal-container">
         <div id="project-modal-bg"></div>

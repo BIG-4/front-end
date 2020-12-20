@@ -3,7 +3,6 @@
 window.app = window.app || {}
 
 function Search(items, projects, users, statuses, data) { // function Search(items)
-  console.log(data)
   let result = `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin brand" id="nav-brand">Task Manangement</h3>
                 <div class="nav-main">

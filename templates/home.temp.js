@@ -17,7 +17,6 @@ function ProjectButton({ project_id, project_name }) {
 }
 
 function ProjectModal(title, projectName) {
-  console.log(projectName)
   return `
     <div class="modal-container">
         <div id="project-modal-bg"></div>

@@ -68,7 +68,6 @@ function CheckUser(name, check) {
 }
 
 function Compare(projects, users, data) {
-  console.log(data)
   let result = `<header class="shadow header " style="height: 56px">
                 <h3 class="no-margin brand" id="nav-brand">Task Manangement</h3>
                 <div class="nav-main">
