@@ -31,8 +31,8 @@ function List({ id, title, items }) {
 }
 
 function ItemModal(title, taskName, chooseUser, users) {
-  console.log(this.users)
-  return `
+  console.log(users, chooseUser)
+  let result = `
     <div class="modal-container">
         <div id="project-modal-bg"></div>
 
@@ -50,9 +50,15 @@ function ItemModal(title, taskName, chooseUser, users) {
                 </div>
                 <div class="project-form">
                     <label>User: </label>
-                    <select id="t_user">
-                      ${users.reduce((acc, user) => acc += OptionForm(user.id, user.username, chooseUser), '')}
-                    </select>
+                    <select id="t_user">`
+  users.forEach((user) => {
+    if (user.id === chooseUser) {
+      result += `<option value="${user.id}" selected>${user.username}</option>`
+    } else {
+      result += `<option value="${user.id}">${user.username}</option>`
+    }
+  })
+  result += `</select>
                 </div>
             </div>
             <div class="padding modal-submit">
@@ -62,6 +68,7 @@ function ItemModal(title, taskName, chooseUser, users) {
         </div>
     </div>
     `
+  return result
 }
 
 function Modal(title, text, hasButtons) {
@@ -83,7 +90,7 @@ function Modal(title, text, hasButtons) {
 
 function Project(projectId, projectName, tasks) {
   return `<header class="shadow header" style="height: 56px">
-                <h3 class="no-margin">Task Manangement</h3>
+                <h3 class="no-margin brand" id="nav-brand">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
                     <a id="nav-func" class="nav-link">Function</a>

@@ -69,7 +69,7 @@ function OptionForm(id, name) {
 
 function Home(projects, users, statuses) {
   return `<header class="shadow header " style="height: 56px">
-                <h3 class="no-margin">Task Manangement</h3>
+                <h3 class="no-margin brand" id="nav-brand">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
                     <a id="nav-func" class="nav-link">Function</a>

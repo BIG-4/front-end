@@ -10,25 +10,6 @@ function View(model) {
   this.functTemp = window.app.FunctionTemplate
 }
 
-View.prototype.render = async function (page, args) {
-  if (page === 'Home') {
-    document.querySelector('content').innerHTML = this.homeTemp.Home(args.projects)
-  } else if (page === 'Login') {
-    document.querySelector('content').innerHTML = this.loginTemp.Login()
-  } else if (page === 'Search') {
-    document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, args.data, args.projects)
-    console.log(args.items)
-  } else if (page === 'Account') {
-    document.querySelector('content').innerHTML = this.accTemp.Account()
-  } else if (page === 'Function') {
-    document.querySelector('content').innerHTML = this.functTemp.Funct()
-  } else if (page === 'Project') {
-    const project = await args.project.then((res) => res)
-    console.log(project)
-    document.querySelector('content').innerHTML = this.projectTemp.Project(project)
-  }
-}
-
 View.prototype.addEvent = function (elementID, event, func) {
   const el = document.getElementById(elementID)
   if (el) {
@@ -44,24 +25,8 @@ View.prototype.getElements = function (selector) {
   return document.querySelectorAll(selector)
 }
 
-View.prototype.showTitleInput = function (textID, inputID) {
-  document.getElementById(textID).className = document.getElementById(textID).className.replace('show', 'hide')
-  document.getElementById(inputID).className = document.getElementById(inputID).className.replace('hide', 'show')
-  document.getElementById(inputID).focus()
-}
-
-View.prototype.setInputError = function (inputID) {
-  this.querySelector(`#${inputID}`).className += this.getElement(`#${inputID}`).className.includes('input-error') ? '' : ' input-error'
-}
-
 View.prototype.setBackground = function () {
   document.querySelector('body').style.background = this.randomGradient()
-}
-
-View.prototype.showHelp = function () {
-  this.showModal('Help', `You can edit a project name or a list name by clicking on it. <br>
-                                To edit an item click on it, and to remove it leave it empty. <br>
-                                You can also drag and drop the items to move them around.`)
 }
 
 View.prototype.showProjectModal = function (title, name) {
@@ -87,6 +52,22 @@ View.prototype.showModal = function (title, text, hasButtons, action) {
     this.addEvent('yes-button', 'click', () => action())
     this.addEvent('no-button', 'click', () => this.closeModal())
   }
+}
+
+View.prototype.showAlertLogin = function (title, text, action) {
+  const modal = document.createElement('DIV')
+  modal.innerHTML = this.loginTemp.Alert(title, text)
+  document.querySelector('content').appendChild(modal)
+  this.addEvent('modal-bg', 'click', () => action())
+  this.addEvent('ok-button', 'click', () => action())
+}
+
+View.prototype.showAlert = function (title, text) {
+  const modal = document.createElement('DIV')
+  modal.innerHTML = this.loginTemp.Alert(title, text)
+  document.querySelector('content').appendChild(modal)
+  this.addEvent('modal-bg', 'click', () => this.closeModal())
+  this.addEvent('ok-button', 'click', () => this.closeModal())
 }
 
 View.prototype.closeModal = function () {

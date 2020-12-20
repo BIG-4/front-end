@@ -4,12 +4,14 @@ window.app = window.app || {}
 function Controller(model, view) {
   this.model = model
   this.view = view
+  this.loginTemp = window.app.LoginTemplate
   this.searchTemp = window.app.SearchTemplate
   this.projectTemp = window.app.ProjectTemplate
   this.homeTemp = window.app.HomeTemplate
   this.functTemp = window.app.FunctionTemplate
   this.compTemp = window.app.CompareTemplate
   this.routes = window.app.Routes
+  this.security = window.app.Security
 
   this.refresh('Login')
   this.view.setBackground()
@@ -29,6 +31,9 @@ function Controller(model, view) {
       this.refresh('Function')
     })
     .add(/login/, () => {
+      if (localStorage.getItem('access_token') !== null) {
+        localStorage.removeItem('access_token')
+      }
       this.refresh('Login')
     })
     .add(/search/, () => {
@@ -36,43 +41,69 @@ function Controller(model, view) {
     })
 }
 
-const apiUrl1 = 'http://localhost:2000'
 // General Controller
 
 Controller.prototype.refresh = function (page, args) {
   if (page === 'Home') {
-    console.log(this.model.users)
-    document.querySelector('content').innerHTML = this.homeTemp.Home(args.projects, args.users, args.statuses)
-    this.setHomeEvents()
-    this.setSearchEvents()
-    this.setHeaderEvents()
+    if (localStorage.getItem('access_token') === null || this.model.projects === undefined) {
+      this.view.showAlertLogin('Warning', 'Please Login', () => {
+        window.location.replace('/#/login')
+      })
+    } else {
+      document.querySelector('content').innerHTML = this.homeTemp.Home(args.projects, args.users, args.statuses)
+      this.setHomeEvents()
+      this.setSearchEvents()
+      this.setHeaderEvents()
+    }
   } else if (page === 'Search') {
     // eslint-disable-next-line max-len
-    document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, this.model.projects, this.model.users, this.model.statuses, args.data)
-    this.setSearchEvents()
-    this.setHeaderEvents()
+    if (localStorage.getItem('access_token') === null || this.model.projects === undefined) {
+      this.view.showAlertLogin('Warning', 'Please Login', () => {
+        window.location.replace('/#/login')
+      })
+    } else {
+      document.querySelector('content').innerHTML = this.searchTemp.Search(args.items, this.model.projects, this.model.users, this.model.statuses, args.data)
+      this.setSearchEvents()
+      this.setHeaderEvents()
+    }
   } else if (page === 'Login') {
-    this.view.render(page, {})
+    document.querySelector('content').innerHTML = this.loginTemp.Login()
     this.setLoginEvents()
   } else if (page === 'Project') {
-    document.querySelector('content').innerHTML = this.projectTemp.Project(args.project.project_id, args.project.project_name, args.tasks)
-    this.setProjectEvents(args.project.project_id)
-    this.setHeaderEvents()
-  } else if (page === 'Account') {
-    this.view.render(page, {})
-    this.setHeaderEvents()
+    if (localStorage.getItem('access_token') === null || this.model.projects === undefined) {
+      this.view.showAlertLogin('Warning', 'Please Login', () => {
+        window.location.replace('/#/login')
+      })
+    } else {
+      document.querySelector('content').innerHTML = this.projectTemp.Project(args.project.project_id, args.project.project_name, args.tasks)
+      this.setProjectEvents(args.project.project_id)
+      this.setHeaderEvents()
+    }
   } else if (page === 'Function') {
-    document.querySelector('content').innerHTML = this.functTemp.Funct(this.model.projects, this.model.users, args)
-    this.setHeaderEvents()
-    this.setFunctionEvents()
+    if (localStorage.getItem('access_token') === null || this.model.projects === undefined) {
+      this.view.showAlertLogin('Warning', 'Please Login', () => {
+        window.location.replace('/#/login')
+      })
+    } else {
+      document.querySelector('content').innerHTML = this.functTemp.Funct(this.model.projects, this.model.users, args)
+      this.setHeaderEvents()
+      this.setFunctionEvents()
+    }
   } else if (page === 'Compare') {
-    document.querySelector('content').innerHTML = this.compTemp.Compare(this.model.projects, this.model.users, args)
-    this.setHeaderEvents()
-    this.setFunctionEvents()
+    if (localStorage.getItem('access_token') === null || this.model.projects === undefined) {
+      this.view.showAlertLogin('Warning', 'Please Login', () => {
+        window.location.replace('/#/login')
+      })
+    } else {
+      document.querySelector('content').innerHTML = this.compTemp.Compare(this.model.projects, this.model.users, args)
+      this.setHeaderEvents()
+      this.setFunctionEvents()
+    }
   }
 }
 
 Controller.prototype.setHeaderEvents = function () {
+  this.view.addEvent('nav-brand', 'click', () => window.location.replace('/#/home'))
   this.view.addEvent('nav-home', 'click', () => window.location.replace('/#/home'))
   this.view.addEvent('nav-acc', 'click', () => this.refresh('Account'))
   this.view.addEvent('nav-func', 'click', () => window.location.replace('/#/function'))
@@ -80,23 +111,16 @@ Controller.prototype.setHeaderEvents = function () {
 }
 
 Controller.prototype.openHome = async function () {
-  this.model.projects = await this.model.getProjects().then((res) => {
-    if (res.status === 401) {
-      alert('Please Login First !!!')
-      window.location.replace('/#/login')
-    }
-    return res.data
-  })
+  this.model.projects = await this.model.getProjects().then((res) => res.data)
   this.model.users = await this.model.getUsers().then((res) => res.data)
   this.model.statuses = await this.model.getStatuses().then((res) => res.data)
-
   this.refresh('Home', { projects: this.model.projects, users: this.model.users, statuses: this.model.statuses })
 }
 
 Controller.prototype.logOut = function () {
-  this.model.getData(`${apiUrl1}/users/logout`, '')
+  this.model.logOut()
     .then((res) => {
-      console.log(res.data)
+      console.log(res)
       localStorage.removeItem('auth_token')
       localStorage.removeItem('access_token')
       window.location.replace('/#/login')
@@ -120,30 +144,30 @@ Controller.prototype.setLoginEvents = function () {
 Controller.prototype.signIn = async function () {
   const data = {
     username: document.getElementById('signInUsername').value,
-    password: document.getElementById('signInPassword').value,
+    password: this.security.escapeHtml(document.getElementById('signInPassword').value),
   }
-  this.model.logData(`${apiUrl1}/users/login`, data)
-    .then((res) => {
-      console.log(res.data) // JSON data parsed by `data.json()` call
-      localStorage.setItem('user_id', res.data.id)
-      localStorage.setItem('auth_token', res.data.auth_token)
-      localStorage.setItem('access_token', res.data.access_token)
-      this.model.getData(`${apiUrl1}/project`).then((res) => {
-        this.model.projects = res.data
+  if (this.security.validateSign(data.username) && this.security.validateSign(data.password)) {
+    this.model.signIn(data)
+      .then((res) => {
+        console.log(res) // JSON data parsed by `data.json()` call
+        localStorage.setItem('user_id', res.data.id)
+        localStorage.setItem('auth_token', res.data.auth_token)
+        localStorage.setItem('access_token', res.data.access_token)
       })
 
-      this.model.getData(`${apiUrl1}/users`).then((res) => {
-        this.model.users = res.data
-      })
-    })
+    this.model.projects = await this.model.getProjects().then((res) => res.data)
+    this.model.users = await this.model.getUsers().then((res) => res.data)
 
-  window.location.replace('/#/home')
+    window.location.replace('/#/home')
+  } else {
+    this.view.showAlert('Warning', 'Username and Password must include only letters and digits')
+  }
 }
 
 Controller.prototype.validateSignUp = function (uname, pw, repw) {
   if (uname === '' || pw === '' || repw === '') return false
   if (pw !== repw) return false
-  return true
+  return this.security.validateSign(uname) && this.security.validateSign(pw)
 }
 
 Controller.prototype.signUp = function () {
@@ -153,15 +177,15 @@ Controller.prototype.signUp = function () {
 
   const data = {
     username: uname,
-    password: pw,
+    password: this.security.escapeHtml(pw),
   }
 
   if (!this.validateSignUp(uname, pw, repw)) {
-    console.log('error')
+    this.view.showAlert('Warning', 'Username and Password must include only letters and digits')
   } else {
-    this.model.logData(`${apiUrl1}/users/signup`, data)
+    this.model.signUp(data)
       .then((res) => {
-        console.log(res) // JSON data parsed by `data.json()` call
+        console.log(res)
         this.refresh('Login')
       })
   }
@@ -195,7 +219,7 @@ Controller.prototype.createProject = function () {
     const data = {
       project_name: document.getElementById('p_name').value,
     }
-    this.model.createData(`${apiUrl1}/projects/create`, data)
+    this.model.createProject(data)
       .then((res) => {
         this.openHome()
       })
@@ -212,7 +236,7 @@ Controller.prototype.editProject = function (projectID) {
       project_id: projectID,
       project_name: document.getElementById('p_name').value,
     }
-    this.model.updateData(`${apiUrl1}/projects/update`, data)
+    this.model.updateProject(data)
       .then((res) => {
         this.openHome()
       })
@@ -221,48 +245,22 @@ Controller.prototype.editProject = function (projectID) {
 
 Controller.prototype.removeProject = function (projectID) {
   this.view.showModal('Remove project', 'Are you sure you want to remove this project?', true, () => {
-    const id = projectID.toString()
-    this.model.delData(`${apiUrl1}/projects/delete?id=${id}`)
+    this.model.removeProject(projectID)
       .then((res) => {
+        console.log(res)
         this.openHome()
       })
   })
 }
 
 Controller.prototype.openProject = async function (projectID) {
-  const project = await this.model.getAsyncData(`${apiUrl1}/project?id=${projectID.toString()}`)
+  const project = await this.model.getProject(projectID)
     .then((res) => res)
 
-  this.getTasksList(projectID)
+  this.model.getTasksList(projectID)
     .then((res) => {
       this.refresh('Project', { project, tasks: res })
     })
-}
-
-Controller.prototype.getTasksList = async function (projectID) {
-  const pathPrj = `${apiUrl1}/tasks/search?key=&project_id=${projectID}`
-
-  const unsigned = await this.model.getAsyncData(`${pathPrj}&status_id=0`)
-    .then((res) => res)
-
-  const todo = await this.model.getAsyncData(`${pathPrj}&status_id=1`)
-    .then((res) => res)
-
-  const doing = await this.model.getAsyncData(`${pathPrj}&status_id=2`)
-    .then((res) => res)
-
-  const done = await this.model.getAsyncData(`${pathPrj}&status_id=3`)
-    .then((res) => res)
-
-  const tasks = {
-    unsigned,
-    todo,
-    doing,
-    done,
-  }
-  console.log(tasks)
-
-  return tasks
 }
 
 // Controller for Search page
@@ -277,7 +275,8 @@ Controller.prototype.setSearchEvents = function () {
 }
 
 Controller.prototype.Search = function () {
-  const key = this.view.getElement('#search-key').value
+  const key = this.security.escapeHtml(this.view.getElement('#search-key').value)
+  // const key = this.view.getElement('#search-key').value
   const user = this.view.getElement('#search-user').value
   const prj = this.view.getElement('#search-prj').value
   const status = this.view.getElement('#search-status').value
@@ -289,12 +288,7 @@ Controller.prototype.Search = function () {
     status,
   }
 
-  const pathKey = `key=${key}`
-  const pathUser = user === 'all' ? '' : `&user_id=${user}`
-  const pathPrj = prj === 'all' ? '' : `&project_id=${prj}`
-  const pathStatus = status === 'all' ? '' : `&status_id=${status}`
-
-  this.model.getData(`${apiUrl1}/tasks/search?${pathKey}${pathUser}${pathPrj}${pathStatus}`)
+  this.model.search(key, user, prj, status)
     .then((res) => {
       console.log(res.data)
       this.refresh('Search', { items: res.data, data })
@@ -302,8 +296,7 @@ Controller.prototype.Search = function () {
 }
 
 Controller.prototype.editItemInSearch = async function (taskID) {
-  const url = `${apiUrl1}/task?id=${taskID.toString()}`
-  const item = await this.model.getAsyncData(url)
+  const item = await this.model.getTask(taskID)
     .then((res) => res)
   this.view.showItemModal('Edit Task', item.task_title, item.user_id, this.model.users)
   this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
@@ -316,17 +309,16 @@ Controller.prototype.editItemInSearch = async function (taskID) {
       user_id: document.getElementById('t_user').value,
       status_id: item.status_id,
     }
-    this.model.updateData(`${apiUrl1}/tasks/update`, data)
+    this.model.updateTask(data)
       .then((res) => {
         this.Search()
       })
   })
 }
 
-Controller.prototype.removeItemInSearch = async function (itemID) {
+Controller.prototype.removeItemInSearch = function (taskID) {
   this.view.showModal('Remove Task', 'Are you sure you want to remove this task?', true, () => {
-    const id = itemID.toString()
-    this.model.delData(`${apiUrl1}/tasks/delete?id=${itemID.toString()}`)
+    this.model.removeTask(taskID)
       .then((res) => {
         this.Search()
       })
@@ -357,18 +349,16 @@ Controller.prototype.Compare = async function () {
       checked.push(users[i].value)
     }
   }
-  const pathPrj = prj === 'all' ? '' : `&project_id=${prj}`
   const result = []
-  const url = `${apiUrl1}/tasks/count?${pathPrj}`
 
   for (j = 0; j < checked.length; j++) {
     // eslint-disable-next-line no-await-in-loop
-    check = await this.getNumTask(url, checked[j])
+    check = await this.model.getNumTask(prj, checked[j])
       .then((res) => res)
     result.push(check)
   }
 
-  const allTask = await this.model.getAsyncData(url)
+  const allTask = await this.model.getAllTask(prj)
     .then((res) => res)
 
   const data = {
@@ -381,25 +371,6 @@ Controller.prototype.Compare = async function () {
   console.log(data)
 
   this.refresh('Compare', data)
-}
-
-Controller.prototype.getNumTask = async function (url, user) {
-  const pathUser = `&user=${user}`
-
-  const todo = await this.model.getAsyncData(`${url + pathUser}&status_id=1`)
-    .then((res) => res)
-  const doing = await this.model.getAsyncData(`${url + pathUser}&status_id=2`)
-    .then((res) => res)
-  const done = await this.model.getAsyncData(`${url + pathUser}&status_id=3`)
-    .then((res) => res)
-  const data = {
-    user,
-    todo: todo.number_of_tasks,
-    doing: doing.number_of_tasks,
-    done: done.number_of_tasks,
-  }
-
-  return data
 }
 
 // Controller for Project board
@@ -454,24 +425,25 @@ Controller.prototype.updateDragDropItem = async function (taskID, projectID) {
   const parent = document.querySelector(`#${taskID}`).parentNode
   const id = taskID.split('-')[1]
   const status = parent.id.split('-')[2]
-  const url = `${apiUrl1}/task?id=${id}`
-  const item = await this.model.getAsyncData(url)
+  const task = await this.model.getTask(id)
     .then((res) => res)
   const data = {
     task_id: id,
-    task_title: item.task_title,
-    project_id: item.project_id,
-    user_id: item.user_id,
+    task_title: task.task_title,
+    project_id: task.project_id,
+    user_id: task.user_id,
     status_id: status,
   }
-  this.model.updateData(`${apiUrl1}/tasks/update`, data)
+  this.model.updateTask(data)
     .then((res) => {
       this.openProject(projectID)
     })
 }
 
-Controller.prototype.createItem = function (listID, projectID) {
-  this.view.showItemModal('New Task', '', 'all', this.model.users)
+Controller.prototype.createItem = async function (listID, projectID) {
+  const users = await this.model.getUsers().then((res) => res.data)
+
+  this.view.showItemModal('New Task', '', 'all', users)
   this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
 
   this.view.addEvent('modal-submit', 'click', () => {
@@ -481,7 +453,7 @@ Controller.prototype.createItem = function (listID, projectID) {
       user_id: document.getElementById('t_user').value,
       status_id: listID,
     }
-    this.model.createData(`${apiUrl1}/tasks/create`, data)
+    this.model.createTask(data)
       .then((res) => {
         this.openProject(projectID)
       })
@@ -489,31 +461,30 @@ Controller.prototype.createItem = function (listID, projectID) {
 }
 
 Controller.prototype.editItem = async function (taskID, projectID) {
-  const url = `${apiUrl1}/task?id=${taskID.toString()}`
-  const item = await this.model.getAsyncData(url)
+  const task = await this.model.getTask(taskID)
     .then((res) => res)
-  this.view.showItemModal('Edit Task', item.task_title, item.user_id, this.model.users)
+  const users = await this.model.getUsers().then((res) => res.data)
+  this.view.showItemModal('Edit Task', task.task_title, task.user_id, users)
   this.view.addEvent('close-modal', 'click', () => this.view.closeModal())
 
   this.view.addEvent('modal-submit', 'click', () => {
     const data = {
       task_id: parseInt(taskID),
       task_title: document.getElementById('t_name').value,
-      project_id: item.project_id,
+      project_id: task.project_id,
       user_id: document.getElementById('t_user').value,
-      status_id: item.status_id,
+      status_id: task.status_id,
     }
-    this.model.updateData(`${apiUrl1}/tasks/update`, data)
+    this.model.updateTask(data)
       .then((res) => {
         this.openProject(projectID)
       })
   })
 }
 
-Controller.prototype.removeItem = async function (itemID, projectID) {
+Controller.prototype.removeItem = async function (taskID, projectID) {
   this.view.showModal('Remove Task', 'Are you sure you want to remove this task?', true, () => {
-    const id = itemID.toString()
-    this.model.delData(`${apiUrl1}/tasks/delete?id=${itemID.toString()}`)
+    this.model.removeTask(taskID)
       .then((res) => {
         this.openProject(projectID)
       })

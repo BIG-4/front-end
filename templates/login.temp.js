@@ -1,5 +1,22 @@
 window.app = window.app || {}
 
+function Alert(title, text) {
+  return `<div class="modal-container">
+                  <div id="modal-bg"></div>
+                  <div class="modal border-radius shadow bg-white">
+                      <div class="padding" style="background-color:#FF4B2B;color:white;"> 
+                          <h4 class="text-center no-margin">${title}</h4>
+                      </div>
+                      <div class="padding">
+                          <p class="no-margin" style="color:#FF4B2B">${text}</p>
+                      </div>
+                      <div class="flex-right full-width border-top">
+                        <button id="ok-button" class="link">OK</button>
+                      </div>
+                  </div>
+              </div>`
+}
+
 function Login() {
   return `
     <main class="vertical-center">
@@ -42,4 +59,4 @@ function Login() {
     `
 }
 
-window.app.LoginTemplate = { Login }
+window.app.LoginTemplate = { Login, Alert }

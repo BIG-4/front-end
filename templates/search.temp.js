@@ -5,7 +5,7 @@ window.app = window.app || {}
 function Search(items, projects, users, statuses, data) { // function Search(items)
   console.log(data)
   let result = `<header class="shadow header " style="height: 56px">
-                <h3 class="no-margin">Task Manangement</h3>
+                <h3 class="no-margin brand" id="nav-brand">Task Manangement</h3>
                 <div class="nav-main">
                     <a id="nav-home" class="nav-link">Home</a>
                     <a id="nav-func" class="nav-link">Function</a>
@@ -62,11 +62,10 @@ function Search(items, projects, users, statuses, data) { // function Search(ite
                         <h3 class="no-margin">Search Result</h3>
                     </div>
 
-                    <div class="padding border-top">`
+                    <div class="padding border-top search-result">`
   if (items.length !== 0) {
     items.forEach((key) => {
       result += `
-      <div>
       <div id="item-${key.task_id}-title" class="item show">
           <button id="remove-item-${key.task_id}" class="icon-button color-danger remove-item">
               <i class="lnr lnr-cross"></i>
@@ -75,7 +74,7 @@ function Search(items, projects, users, statuses, data) { // function Search(ite
               <p>${key.task_title}</p>
               <p>User: ${key.username} </p>
           </div>
-      </div></div>
+      </div>
         `
     })
   } else {

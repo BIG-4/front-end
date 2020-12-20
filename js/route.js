@@ -8,7 +8,7 @@ class Router {
   root = '/';
 
   constructor(options) {
-    this.mode = 'history'
+    this.mode = window.history.pushState ? 'history' : 'hash'
     if (options.mode) this.mode = options.mode
     if (options.root) this.root = options.root
     this.listen()
