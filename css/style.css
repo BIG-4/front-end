@@ -395,6 +395,10 @@ input {
 }
 
 /** Style for home page */
+.project-detail {
+	width: 90%;
+    margin: auto;
+}
 .project-button{
     width: 100%;
     cursor: pointer;

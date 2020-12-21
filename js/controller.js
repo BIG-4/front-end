@@ -30,7 +30,7 @@ class Controller {
         this.openProject(id)
       })
       .add(/function/, () => {
-        this.refresh('Function')
+        this.openFunction()
       })
       .add(/login/, () => {
         if (localStorage.getItem('access_token') !== null) {
@@ -47,6 +47,7 @@ class Controller {
     if (page === 'Home') {
       if (localStorage.getItem('access_token') === null || this.model.projects === undefined) {
         this.view.showAlertLogin('Warning', 'Please Login', () => {
+          console.log('login')
           window.location.replace('/#/login')
         })
       } else {
@@ -85,7 +86,7 @@ class Controller {
           window.location.replace('/#/login')
         })
       } else {
-        document.querySelector('content').innerHTML = this.functTemp.Funct(this.model.projects, this.model.users, args)
+        document.querySelector('content').innerHTML = this.functTemp.Funct(args.projects, args.users)
         this.setHeaderEvents()
         this.setFunctionEvents()
       }
@@ -115,6 +116,12 @@ class Controller {
     this.model.users = await this.model.getUsers().then((res) => res.data)
     this.model.statuses = await this.model.getStatuses().then((res) => res.data)
     this.refresh('Home', { projects: this.model.projects, users: this.model.users, statuses: this.model.statuses })
+  }
+
+  openFunction = async function () {
+    this.model.projects = await this.model.getProjects().then((res) => res.data)
+    this.model.users = await this.model.getUsers().then((res) => res.data)
+    this.refresh('Function', { projects: this.model.projects, users: this.model.users })
   }
 
   logOut = function () {

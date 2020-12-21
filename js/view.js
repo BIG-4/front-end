@@ -58,8 +58,8 @@ class View {
     document.querySelector('content').appendChild(modal)
     this.accTemp = window.app.AccountTemplate
     this.functTemp = window.app.FunctionTemplate
-    this.addEvent('modal-bg', 'click', () => this.closeModal())
-    this.addEvent('ok-button', 'click', () => this.closeModal())
+    this.addEvent('modal-bg', 'click', () => action())
+    this.addEvent('ok-button', 'click', () => action())
   }
 
   closeModal = function () {
