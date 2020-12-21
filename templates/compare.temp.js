@@ -41,13 +41,13 @@ function Table(all, result) {
     let percent
     if (allPer === 0) percent = 0.00
     else percent = result[i5].done / allPer
-    table += `<td class="ratio">${percent.toFixed(2)}% (${result[i5].done}/${allPer})</td>`
+    table += `<td class="ratio">${percent.toFixed(2) * 100}% (${result[i5].done}/${allPer})</td>`
   }
   table += `</tr>
           <tr>
               <td>Project Performance</td>`
   for (i6 = 0; i6 < result.length; i6++) {
-    table += `<td class="ratio">${(result[i6].done / all).toFixed(2)}% (${result[i6].done}/${all})</td>`
+    table += `<td class="ratio">${(result[i6].done / all).toFixed(2) * 100}% (${result[i6].done}/${all})</td>`
   }
   table += `</tr>
       </table > `
